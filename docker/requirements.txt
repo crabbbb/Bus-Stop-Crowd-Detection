@@ -1,0 +1,14 @@
+opencv-python
+imutils
+supervision
+ultralytics 
+numpy
+pillow
+cmake
+roboflow
+matplotlib
+pymongo[srv] ==3.12
+python-dotenv
+
+jupyterlab-lsp
+python-lsp-server[all]

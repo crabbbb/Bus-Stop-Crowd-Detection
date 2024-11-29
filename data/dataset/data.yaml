@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 1
+names: ['leg']
+
+roboflow:
+  workspace: crabbbb
+  project: human-in-bus-stop
+  version: 6
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/crabbbb/human-in-bus-stop/dataset/6

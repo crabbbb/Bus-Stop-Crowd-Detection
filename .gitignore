@@ -3,3 +3,5 @@ __pycache__
 videos/
 images/
 .env
+yolo_models/
+*.pt

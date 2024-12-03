@@ -1,12 +1,11 @@
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 from pymongo.errors import ConnectionFailure
-from pymongo.database import Database
-import yaml
+from utils import FileManage
 import os
 import errno
 
-__HOME = os.path.join(os.path.dirname(__file__), "../")
+_HOME = os.path.join(os.path.dirname(__file__), "../")
 
 '''
 do URL Encoding to prevent special character conflict with reserved syntax 
@@ -15,7 +14,7 @@ param :
 return : 
     encoded password 
 '''
-def urlEncode(password: str) -> str : 
+def _urlEncode(password: str) -> str : 
     from urllib.parse import quote
     return quote(password)
 
@@ -24,9 +23,10 @@ prepare database configuration by reading configuration detail from env and yaml
 return :
     database configuaration in dictionary, None if file not exist
 '''
-def __loadDBConfig() -> dict :
+def _loadDBConfig() -> dict :
+
     # check db_config.yaml exist 
-    yamlFile = os.path.join(__HOME, "config/db_config.yaml")
+    yamlFile = os.path.join(_HOME, "config/db_config.yaml")
 
     if not os.path.exists(yamlFile) : 
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), yamlFile)
@@ -34,18 +34,17 @@ def __loadDBConfig() -> dict :
     # read .env file locally 
     from dotenv import load_dotenv
     # load env variable from .env file 
-    load_dotenv()
+    load_dotenv(dotenv_path=os.path.join(_HOME, "config/.env"))
 
     # read yaml file 
-    with open(yamlFile, "r") as f : 
-        config = yaml.safe_load(f)
+    config = FileManage.readYAML(yamlFile)
 
     # combine env and yaml become a complete config
+    # encode the url to prevent conflict special symbol
     dbConfig = {
         "uName": os.getenv("DB_USER"),
-        "uPass": os.getenv("DB_PASSWORD"),
+        "uPass": _urlEncode(os.getenv("DB_PASSWORD")),
         "host": config["database"]["host"],
-        "dbName": config["database"]["databaseName"],
         "options": config["database"]["options"]
     }
 
@@ -58,13 +57,13 @@ error :
 return : 
     None if error occurs else will return MongoClient
 '''
-def connectToMongoDB() :
+def _connectToMongoDB() :
     try : 
-        dbConfig = __loadDBConfig()
+        dbConfig = _loadDBConfig()
     except FileNotFoundError as e :
         raise FileNotFoundError(e)
 
-    uri = f"mongodb+srv://{dbConfig['uName']}:{dbConfig['uPass']}@{dbConfig['host']}/{dbConfig['dbName']}{dbConfig['options']}"
+    uri = f"mongodb+srv://{dbConfig['uName']}:{dbConfig['uPass']}@{dbConfig['host']}/{dbConfig['options']}"
 
     try : 
         # connect with mongodb 
@@ -73,7 +72,58 @@ def connectToMongoDB() :
         # send ping command to mongodb server to ensure the connection is active and reachable 
         response = client.admin.command('ping')
         print(f"MongoDB Connection Successful > {response}")
-
         return client 
     except ConnectionFailure as e : 
         raise ConnectionFailure(errno.ENOTCONN, f"MongoDB Connection Unsuccessful > {e}")
+
+# singleton 
+_client = None
+
+# call connection
+def buildConnection() : 
+    global _client
+
+    if _client is None : 
+        # initialize the client 
+        from pymongo.errors import ConnectionFailure
+        try : 
+            _client = _connectToMongoDB()
+        except ConnectionFailure as e : 
+            print(e)
+            terminateConnection()
+        except FileNotFoundError as e : 
+            print(e)
+            terminateConnection()
+
+def terminateConnection() : 
+    global _client
+    
+    if _client : 
+        _client.close()
+        _client = None
+
+def isConnected() -> bool : 
+    return True if _client else False
+
+@property
+def client() :
+    return _client
+
+# database 
+
+'''
+to check the database exist or not 
+return : 
+    True when is exist else False 
+''' 
+def isDBExist(dbName: str) -> bool :
+    if dbName in _client.list_database_names() : 
+        return True
+    return False 
+
+def getDatabase(dbName: str) :
+    # if database exist will return database else will create a new one 
+    return _client[dbName]
+
+def getDefaultDB() -> str : 
+    return FileManage.readYAML(os.path.join(_HOME, "config/db_config.yaml"))["database"]["databaseName"]

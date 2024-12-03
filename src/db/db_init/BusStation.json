@@ -1,0 +1,74 @@
+[
+    {
+        "StationId": "S001",
+        "StationName": "Station 1",
+        "StationLocation": "Infront CITC",
+        "IsActive": 0
+    },
+    {
+        "StationId": "S002",
+        "StationName": "Station 2",
+        "StationLocation": "Infront CITC",
+        "IsActive": 1
+    },
+    {
+        "StationId": "S003",
+        "StationName": "Station 3",
+        "StationLocation": "Infront CITC",
+        "IsActive": 0
+    },
+    {
+        "StationId": "S004",
+        "StationName": "Station 4",
+        "StationLocation": "Infront CITC",
+        "IsActive": 0
+    },
+    {
+        "StationId": "S005",
+        "StationName": "Station 5",
+        "StationLocation": "Infront CITC",
+        "IsActive": 0
+    },
+    {
+        "StationId": "S006",
+        "StationName": "Tarvilla",
+        "StationLocation": "Tarvilla",
+        "IsActive": 0
+    },
+    {
+        "StationId": "S007",
+        "StationName": "LRT W.Maju",
+        "StationLocation": "Wangsa Maju",
+        "IsActive": 0
+    },
+    {
+        "StationId": "S008",
+        "StationName": "Hospital ATM Tunku Mizan",
+        "StationLocation": "Hospital ATM Tunku Mizan",
+        "IsActive": 0
+    },
+    {
+        "StationId": "S009",
+        "StationName": "Metroview",
+        "StationLocation": "Metroview",
+        "IsActive": 0
+    },
+    {
+        "StationId": "S010",
+        "StationName": "LRT W. Maju",
+        "StationLocation": "Wangsa Maju",
+        "IsActive": 0
+    },
+    {
+        "StationId": "S011",
+        "StationName": "Gate 7 TAR UMT",
+        "StationLocation": "Gate 7 TAR UMT",
+        "IsActive": 0
+    },
+    {
+        "StationId": "S012",
+        "StationName": "East Campus",
+        "StationLocation": "East Campus",
+        "IsActive": 0
+    }
+]

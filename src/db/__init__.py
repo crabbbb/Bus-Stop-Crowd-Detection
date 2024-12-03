@@ -1,4 +1,6 @@
-from .db_connection import urlEncode, connectToMongoDB
-from .db_utils import isDBExist, isSameCollections, isCollectionExist, getCollections, dropAllCollections, createCollections
+from .db_database import Database
+from .db_connection import buildConnection, terminateConnection, isConnected, isDBExist, client, getDatabase, getDefaultDB
+from .setup_db import setup
 
-__all__ = ["urlEncode", "connectToMongoDB", "isDBExist", "isSameCollections", "isCollectionExist", "getCollections", "dropAllCollections", "createCollections"]
+__all__ = ["Database", "buildConnection", "terminateConnection", "isConnected", "isDBExist", "getDatabase", "setup", "client", "getDefaultDB"]
+

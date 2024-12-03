@@ -1,0 +1,14 @@
+[
+    {
+        "ScheduleId": "BS001",
+        "DepartTime": "07:10",
+        "ArrivalTime": "07:40",
+        "DayOfWeek": 1
+    },
+    {
+        "ScheduleId": "BS002",
+        "DepartTime": "10:15",
+        "ArrivalTime": "10:50",
+        "DayOfWeek": 1
+    }
+]

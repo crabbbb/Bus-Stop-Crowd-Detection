@@ -1,0 +1,14 @@
+[
+    {
+        "BusId": "B001",
+        "CarPlateNo": "ABC1234",
+        "Capacity": 50,
+        "IsActive": 0
+    },
+    {
+        "BusId": "B002",
+        "CarPlateNo": "ABC5678",
+        "Capacity": 50,
+        "IsActive": 0
+    }
+]

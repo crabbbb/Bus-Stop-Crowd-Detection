@@ -1,0 +1,50 @@
+[
+    {
+        "StationId": "S005",
+        "RouteId": "R001",
+        "RouteDuration": 5, 
+        "RouteOrder": 0
+    }, 
+    {
+        "StationId": "S006",
+        "RouteId": "R001",
+        "RouteDuration": 5, 
+        "RouteOrder": 1
+    }, 
+    {
+        "StationId": "S007",
+        "RouteId": "R001",
+        "RouteDuration": 5, 
+        "RouteOrder": 2
+    }, 
+    {
+        "StationId": "S008",
+        "RouteId": "R001",
+        "RouteDuration": 5, 
+        "RouteOrder": 3
+    }, 
+    {
+        "StationId": "S009",
+        "RouteId": "R001",
+        "RouteDuration": 5, 
+        "RouteOrder": 4
+    }, 
+    {
+        "StationId": "S010",
+        "RouteId": "R001",
+        "RouteDuration": 5, 
+        "RouteOrder": 5
+    }, 
+    {
+        "StationId": "S011",
+        "RouteId": "R001",
+        "RouteDuration": 5, 
+        "RouteOrder": 6
+    }, 
+    {
+        "StationId": "S012",
+        "RouteId": "R001",
+        "RouteDuration": 5, 
+        "RouteOrder": 7
+    }
+]

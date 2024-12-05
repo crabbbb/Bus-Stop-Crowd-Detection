@@ -16,7 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from bus_schedule.views import test_mongo_config
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('busSchedule/', test_mongo_config)
 ]

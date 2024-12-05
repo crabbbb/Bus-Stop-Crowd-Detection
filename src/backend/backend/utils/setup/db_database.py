@@ -1,12 +1,12 @@
 from pymongo import MongoClient
 from pymongo.database import Database
-from utils import FileManage
+from backend.utils import FileManage
 import numpy as np
 from .db_connection import getDatabase
 import os
+from django.conf import settings 
 
 class Database :
-    _HOME = os.path.join(os.path.dirname(__file__), "../")
 
     def __init__(self, dbName):
         # getDatabase will bring help on create database 
@@ -18,7 +18,7 @@ class Database :
         
     ''' 
     def _getPresetCollectionsName() : 
-        yamlFile = os.path.join(Database._HOME, "config/db_config.yaml")
+        yamlFile = os.path.join(settings.BASE_DIR, "backend/config/db_config.yaml")
         # read yaml file 
         config = FileManage.readYAML(yamlFile)
         
@@ -74,16 +74,16 @@ class Database :
             # get the collections from yaml file 
             collections = Database._getPresetCollectionsName()
 
-        # check all collections exist
+        # if collection exist will drop the collections 
         if self._db :
-            if not self.isSameCollections() and self.numOfCollections() > 0: 
+            if self.numOfCollections() > 0: 
                 # drop all collections and create again
                 self.dropAllCollections()
         
         # NOTE : Ensure each json file is same with the collections name
         # loop and create collections and assign data 
         unsuccessNo = 0
-        filePath = os.path.join(Database._HOME, "db/db_init/")
+        filePath = os.path.join(settings.BASE_DIR, "backend/utils/setup/db_init/")
         for c in collections : 
             data = FileManage.readJson(os.path.join(filePath, f"{c}.json"))
             if not Database.createCollection(self, name=c, data=data) : 

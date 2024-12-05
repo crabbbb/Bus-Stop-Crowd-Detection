@@ -5,10 +5,20 @@ ultralytics
 numpy
 pillow
 cmake
-roboflow
 matplotlib
-pymongo[srv] ==3.12
 python-dotenv
 
+# jupyter notebook auto suggest 
 jupyterlab-lsp
 python-lsp-server[all]
+
+# UI 
+django
+django-cors-headers
+
+# database 
+djongo 
+pymongo[srv] ==3.12
+
+# dataset for model training 
+roboflow

@@ -1,6 +1,7 @@
 from django.urls import path
-from bus_schedule.views import test_mongo_config
+from .views import BusListView, BusDetailView
 
 urlpatterns = [
-    path('busSchedule/', test_mongo_config)
+    path('buses/', BusListView.as_view(), name='bus-list'),  # Endpoint for listing/creating buses
+    path('buses/<str:pk>/', BusDetailView.as_view(), name='bus-detail'),  # Endpoint for retrieving/updating/deleting a bus
 ]

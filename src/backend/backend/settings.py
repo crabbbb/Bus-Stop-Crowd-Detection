@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders', # CORS 
     'bus_schedule.apps.BusScheduleConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

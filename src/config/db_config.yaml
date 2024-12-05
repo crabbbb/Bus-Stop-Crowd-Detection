@@ -1,6 +1,0 @@
-database: 
-  type: mongodb
-  host: cluster0.0htcf.mongodb.net
-  databaseName: Bus-Scene-Detection-DB
-  options: "?retryWrites=true&w=majority&appName=Cluster0"
-collections: ["Bus", "BusSchedule", "BusStation", "Route", "RouteStation", "BusScheduleAssignment", "BusTrackingLog"]

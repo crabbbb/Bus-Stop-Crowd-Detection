@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import Bus, BusSchedule, BusScheduleAssignment, BusStation, BusTrackingLog, Route, RouteStation
 
 # Register your models here so can be used at the admin model
+# make register so the superuser can saw 
 @admin.register(Bus)
 class BusAdmin(admin.ModelAdmin):
     list_display = ("BusId", "CarPlateNo", "Capacity", "IsActive")

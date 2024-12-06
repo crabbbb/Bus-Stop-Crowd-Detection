@@ -4,15 +4,12 @@ from django.core.exceptions import ValidationError
 
 class Route(models.Model) :
     # variable name will be the field name of the collection
-    # this will handle the object id create by mongodb
-    # auto generated, no need input 
-    # id = models.CharField(max_length=24, primary_key=True, default=lambda: str(ObjectId()))
-
     # data inside collections
-    RouteId = models.CharField(max_length=5)
-    RouteDescription = models.TextField()
-    IsActive = models.BooleanField()
+    RouteId = models.CharField(max_length=5, primary_key=True)
+    RouteDescription = models.TextField() 
+    RouteDuration = models.IntegerField() # In minute 
     FromCampus = models.BooleanField()
+    IsActive = models.BooleanField()
 
     # overwrite the original version
     def save(self, *args, **kwargs) :
@@ -39,6 +36,8 @@ class Route(models.Model) :
     class Meta : 
         # custom collection name 
         db_table = "Route"
+        # make the custome id also unique with the _id (object_id)
+        unique_together = ('RouteId', )
 
     def __str__(self) :
-        return f"object id > {self.id} ( route id > {self.RouteId}, route description > {self.RouteDescription}, is active? > {self.IsActive}, from campus? > {self.FromCampus})"
+        return f"object id > {self.id} (route id > {self.RouteId}, route description > {self.RouteDescription}, route duration > {self.RouteDuration}, from campus? > {self.FromCampus}, is active? > {self.IsActive})"

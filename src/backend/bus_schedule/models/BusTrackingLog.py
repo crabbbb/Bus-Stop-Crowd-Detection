@@ -38,4 +38,4 @@ class BusTrackingLog (models.Model) :
         db_table = "BusTrackingLog"
 
     def __str__(self) :
-        return f"object id > {self.id} ( arrival datetime > {self.ArrivalDateTime}, assignment id > {self.AssignmentId}, bus status > {self.get_BusStatus_display()}, bus capacity estimate > {self.get_BusCapacityEstimate_display()})"
+        return f"object id > {self.id} (arrival datetime > {self.ArrivalDateTime}, assignment id > {self.AssignmentId}, bus status > {self.get_BusStatus_display()}, bus capacity estimate > {self.get_BusCapacityEstimate_display()})"

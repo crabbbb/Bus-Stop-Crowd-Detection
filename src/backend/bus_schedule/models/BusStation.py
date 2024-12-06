@@ -4,14 +4,9 @@ from django.core.exceptions import ValidationError
 
 class BusStation(models.Model) :
     # variable name will be the field name of the collection
-    # this will handle the object id create by mongodb
-    # auto generated, no need input 
-    # id = models.CharField(max_length=24, primary_key=True, default=lambda: str(ObjectId()))
-
     # data inside collections
-    StationId = models.CharField(max_length=5)
+    StationId = models.CharField(max_length=5, primary_key=True)
     StationName = models.CharField(max_length=255)
-    StationLocation = models.TextField()
     IsActive = models.BooleanField()
 
     # overwrite the original version
@@ -39,6 +34,8 @@ class BusStation(models.Model) :
     class Meta : 
         # custom collection name 
         db_table = "BusStation"
+        # make the custome id also unique with the _id (object_id)
+        unique_together = ('StationId', )
 
     def __str__(self) :
-        return f"object id > {self.id} ( station id > {self.StationId}, station name > {self.StationName}, station location > {self.StationLocation}, is active? > {self.IsActive})"
+        return f"object id > {self.id} (station id > {self.StationId}, station name > {self.StationName}, is active? > {self.IsActive})"

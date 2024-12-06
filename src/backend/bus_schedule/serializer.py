@@ -1,6 +1,6 @@
 # code below will bring help on serializer and de-serializer 
 from rest_framework import serializers
-from .models import Bus, BusSchedule, BusScheduleAssignment, BusStation, BusTrackingLog, Route, RouteStation
+from .models import Bus, Schedule, ScheduleAssignment, Assignment, BusStation, BusTrackingLog, Route, RouteStation
 
 class BusSerializer(serializers.ModelSerializer) :
     class Meta :
@@ -8,14 +8,19 @@ class BusSerializer(serializers.ModelSerializer) :
         # __all__ can be understand as somethings like this ['id', 'name', 'capacity']
         fields = '__all__' 
 
-class BusScheduleSerializer(serializers.ModelSerializer) :
+class ScheduleSerializer(serializers.ModelSerializer) :
     class Meta : 
-        model = BusSchedule
+        model = Schedule
         fields = '__all__'
 
-class BusScheduleAssignmentSerializer(serializers.ModelSerializer) :
+class ScheduleAssignmentSerializer(serializers.ModelSerializer) :
     class Meta : 
-        model = BusScheduleAssignment
+        model = ScheduleAssignment
+        fields = '__all__'
+
+class AssignmentSerializer(serializers.ModelSerializer) :
+    class Meta : 
+        model = Assignment
         fields = '__all__'
 
 class BusStationSerializer(serializers.ModelSerializer) :

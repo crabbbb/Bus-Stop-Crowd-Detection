@@ -15,12 +15,15 @@ python-lsp-server[all]
 
 # UI 
 django==3.1.12
-django-cors-headers
-djangorestframework
+django-cors-headers==4.6.0
+djangorestframework==3.12.4
 
 # database 
 djongo==1.3.7
 pymongo[srv] ==3.13
+sqlparse==0.2.4
+# will have version coflict problem between django, djongo, pymongo, django-cors-headers and djangorestframework
+# makesure install correct version 
 
 # dataset for model training 
 roboflow

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Bus, BusSchedule, BusScheduleAssignment, BusStation, BusTrackingLog, Route, RouteStation
+from .models import Bus, Schedule, Assignment, BusStation, BusTrackingLog, Route, RouteStation, ScheduleAssignment
 
 # Register your models here so can be used at the admin model
 # make register so the superuser can saw 
@@ -7,26 +7,30 @@ from .models import Bus, BusSchedule, BusScheduleAssignment, BusStation, BusTrac
 class BusAdmin(admin.ModelAdmin):
     list_display = ("BusId", "CarPlateNo", "Capacity", "IsActive")
 
-@admin.register(BusSchedule)
-class BusScheduleAdmin(admin.ModelAdmin):
-    list_display = ("ScheduleId", "DepartureTime", "ArrivalTime", "DayOfWeek")
+@admin.register(Schedule)
+class ScheduleAdmin(admin.ModelAdmin):
+    list_display = ("ScheduleId", "IsActive", "CreateAt")
 
-@admin.register(BusScheduleAssignment)
-class BusScheduleAdmin(admin.ModelAdmin):
-    list_display = ("AssignmentId", "ScheduleId", "RouteId", "BusId")
+@admin.register(Assignment)
+class AssignmentAdmin(admin.ModelAdmin):
+    list_display = ("AssignmentId", "Time", "DayOfWeek", "BusId", "RouteId")
 
 @admin.register(BusStation)
-class BusScheduleAdmin(admin.ModelAdmin):
-    list_display = ("StationId", "StationName", "StationLocation", "IsActive")
+class BusStationAdmin(admin.ModelAdmin):
+    list_display = ("StationId", "StationName", "IsActive")
 
 @admin.register(BusTrackingLog)
-class BusScheduleAdmin(admin.ModelAdmin):
+class BusTrackingLogAdmin(admin.ModelAdmin):
     list_display = ("ArrivalDateTime", "AssignmentId", "BusStatus", "BusCapacityEstimate")
 
 @admin.register(Route)
-class BusScheduleAdmin(admin.ModelAdmin):
-    list_display = ("RouteId", "RouteDescription", "IsActive", "FromCampus")
+class RouteAdmin(admin.ModelAdmin):
+    list_display = ("RouteId", "RouteDescription", "RouteDuration", "FromCampus", "IsActive")
 
 @admin.register(RouteStation)
-class BusScheduleAdmin(admin.ModelAdmin):
-    list_display = ("StationId", "RouteId", "RouteDuration", "RouteOrder")
+class RouteStationAdmin(admin.ModelAdmin):
+    list_display = ("StationId", "RouteId", "RouteOrder")
+
+@admin.register(ScheduleAssignment)
+class ScheduleAssignmentAdmin(admin.ModelAdmin):
+    list_display = ("ScheduleId", "AssignmentId")

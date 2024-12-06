@@ -2,25 +2,24 @@ from django.db import models
 from bson.objectid import ObjectId
 from django.core.exceptions import ValidationError
 
-class Bus(models.Model) :
+class Route(models.Model) :
     # variable name will be the field name of the collection
     # this will handle the object id create by mongodb
     # auto generated, no need input 
-    # obj.pk or obj.id
     # id = models.CharField(max_length=24, primary_key=True, default=lambda: str(ObjectId()))
 
     # data inside collections
-    BusId = models.CharField(max_length=5)
-    CarPlateNo = models.CharField(max_length=7)
-    Capacity = models.IntegerField()
+    RouteId = models.CharField(max_length=5)
+    RouteDescription = models.TextField()
     IsActive = models.BooleanField()
+    FromCampus = models.BooleanField()
 
-    # overwrite the original versio 
+    # overwrite the original version
     def save(self, *args, **kwargs) :
         # id field is empty 
-        if not self.BusId :
+        if not self.RouteId :
             # create a new column for numeric id and sort it 
-            last = Bus.objects.annotate(numericId = models.functions.Cast(models.Substr('BusId', 2), models.IntegerField())).order_by('-numericId').first()
+            last = Route.objects.annotate(numericId = models.functions.Cast(models.Substr('RouteId', 2), models.IntegerField())).order_by('-numericId').first()
 
             if last : 
                 # get the next number of the last id
@@ -33,13 +32,13 @@ class Bus(models.Model) :
                 newId = 1
             
             # eg, A001
-            self.BusId = f"B{newId:03d}"
+            self.RouteId = f"R{newId:03d}"
         # call the original verion 
         super().save(*args, **kwargs)
 
     class Meta : 
         # custom collection name 
-        db_table = "Bus"
+        db_table = "Route"
 
     def __str__(self) :
-        return f"object id > {self.id} ( bus id > {self.BusId}, car plate no > {self.CarPlateNo}, capacity > {self.Capacity}, is activte? > {self.IsActive})"
+        return f"object id > {self.id} ( route id > {self.RouteId}, route description > {self.RouteDescription}, is active? > {self.IsActive}, from campus? > {self.FromCampus})"

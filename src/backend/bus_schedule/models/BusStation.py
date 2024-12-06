@@ -2,25 +2,24 @@ from django.db import models
 from bson.objectid import ObjectId
 from django.core.exceptions import ValidationError
 
-class Bus(models.Model) :
+class BusStation(models.Model) :
     # variable name will be the field name of the collection
     # this will handle the object id create by mongodb
     # auto generated, no need input 
-    # obj.pk or obj.id
     # id = models.CharField(max_length=24, primary_key=True, default=lambda: str(ObjectId()))
 
     # data inside collections
-    BusId = models.CharField(max_length=5)
-    CarPlateNo = models.CharField(max_length=7)
-    Capacity = models.IntegerField()
+    StationId = models.CharField(max_length=5)
+    StationName = models.CharField(max_length=255)
+    StationLocation = models.TextField()
     IsActive = models.BooleanField()
 
-    # overwrite the original versio 
+    # overwrite the original version
     def save(self, *args, **kwargs) :
         # id field is empty 
-        if not self.BusId :
+        if not self.StationId :
             # create a new column for numeric id and sort it 
-            last = Bus.objects.annotate(numericId = models.functions.Cast(models.Substr('BusId', 2), models.IntegerField())).order_by('-numericId').first()
+            last = BusStation.objects.annotate(numericId = models.functions.Cast(models.Substr('StationId', 2), models.IntegerField())).order_by('-numericId').first()
 
             if last : 
                 # get the next number of the last id
@@ -33,13 +32,13 @@ class Bus(models.Model) :
                 newId = 1
             
             # eg, A001
-            self.BusId = f"B{newId:03d}"
+            self.StationId = f"S{newId:03d}"
         # call the original verion 
         super().save(*args, **kwargs)
 
     class Meta : 
         # custom collection name 
-        db_table = "Bus"
+        db_table = "BusStation"
 
     def __str__(self) :
-        return f"object id > {self.id} ( bus id > {self.BusId}, car plate no > {self.CarPlateNo}, capacity > {self.Capacity}, is activte? > {self.IsActive})"
+        return f"object id > {self.id} ( station id > {self.StationId}, station name > {self.StationName}, station location > {self.StationLocation}, is active? > {self.IsActive})"

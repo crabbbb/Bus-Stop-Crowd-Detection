@@ -4,6 +4,6 @@ from .models import Bus
 
 class BusSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Bus 
+        model = Bus
         # __all__ can be understand as somethings like this ['id', 'name', 'capacity']
         fields = '__all__' 

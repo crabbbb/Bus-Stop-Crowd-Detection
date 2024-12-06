@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 class Schedule(models.Model) :
     # variable name will be the field name of the collection
     # data inside collections
-    ScheduleId = models.CharField(max_length=5, primary_key=True)
+    ScheduleId = models.CharField(max_length=5)
     IsActive = models.BooleanField()
     CreateAt = models.DateTimeField(auto_now=True)
 
@@ -34,8 +34,6 @@ class Schedule(models.Model) :
     class Meta : 
         # custom collection name 
         db_table = "Schedule"
-        # make the custome id also unique with the _id (object_id)
-        unique_together = ('ScheduleId', )
 
     def __str__(self) :
         return f"object id > {self.id} (schedule id > {self.ScheduleId}, is active? > {self.IsActive}, create at > {self.CreateAt})"

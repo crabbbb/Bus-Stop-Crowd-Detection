@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 class BusStation(models.Model) :
     # variable name will be the field name of the collection
     # data inside collections
-    StationId = models.CharField(max_length=5, primary_key=True)
+    StationId = models.CharField(max_length=5)
     StationName = models.CharField(max_length=255)
     IsActive = models.BooleanField()
 
@@ -34,8 +34,6 @@ class BusStation(models.Model) :
     class Meta : 
         # custom collection name 
         db_table = "BusStation"
-        # make the custome id also unique with the _id (object_id)
-        unique_together = ('StationId', )
 
     def __str__(self) :
         return f"object id > {self.id} (station id > {self.StationId}, station name > {self.StationName}, is active? > {self.IsActive})"

@@ -15,7 +15,7 @@ class Assignment(models.Model) :
     
     # variable name will be the field name of the collection
     # data inside collections
-    AssignmentId = models.CharField(max_length=5, primary_key=True)
+    AssignmentId = models.CharField(max_length=5)
     Time = models.TimeField()
     DayOfWeek = models.IntegerField(choices=Day.choices)
     BusId = models.CharField(max_length=5)
@@ -46,8 +46,6 @@ class Assignment(models.Model) :
     class Meta : 
         # custom collection name 
         db_table = "Assignment"
-        # make the custome id also unique with the _id (object_id)
-        unique_together = ('AssignmentId', )
 
     def __str__(self) :
         return f"object id > {self.id} (assignment id > {self.AssignmentId}, time > {self.Time}, day of week > {self.get_DayOfWeek_display()}, bus id > {self.BusId}, route id {self.RouteId})"

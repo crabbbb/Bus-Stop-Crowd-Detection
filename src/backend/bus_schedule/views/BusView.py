@@ -42,10 +42,10 @@ class BusListView(APIView) :
             
             if buss.exists() : 
                 # after filter still have data 
-                serializer = BusSerializer(data=buss, many=True)
-                return Response(serializer.data)
+                serializer = BusSerializer(buss, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
         
-        return Response({"not_found": message.NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": message.NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
     
     # create
     @method_decorator(ensure_csrf_cookie, name="dispatch")
@@ -56,12 +56,17 @@ class BusListView(APIView) :
         if serializer.is_valid() : 
             # car plate check duplicate 
             carplate = serializer.validated_data.get("CarPlateNo")
-            if not Bus.objects.filter(CarPlateNo=carplate).exists() :
+            if not BusUtility.isCarPlateExist(carplate) :
                 serializer.save()
-                return Response({"redirect": f"/bus?id={serializer.data.get('BusId')}"}, status=status.HTTP_201_CREATED)
+                return Response(
+                        {
+                            "success": f"{message.CREATE_SUCCESS}, ID : {serializer.data.get('BusId')}",
+                            "redirect": f"/bus?id={serializer.data.get('BusId')}"
+                        },
+                        status=status.HTTP_201_CREATED)
             else : 
                 # duplicate carplate
-                return Response({"bad_request": f"{message.DUPLICATE_RECORD}, Car Plate No {carplate} Exist"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error": f"{message.DUPLICATE_RECORD}, Car Plate No {carplate} Exist"}, status=status.HTTP_400_BAD_REQUEST)
         else : 
             # dont have pass the checking condition, access serializer error message dict 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -78,21 +83,70 @@ class BusDetailView(APIView) :
     def get(self, request, id) :
         try : 
             bus = self.getObject(id) 
-            serializer = BusSerializer(data=bus)
+            serializer = BusSerializer(bus)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except ObjectDoesNotExist as e : 
-            return Response({"not_found": f"{message.NOT_FOUND}, {e}"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": f"{message.NOT_FOUND}, {e}"}, status=status.HTTP_404_NOT_FOUND)
         except MultipleObjectsReturned as e :
-            return Response({"bad_request": f"{message.DUPLICATE_RECORD}, {e}"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": f"{message.DUPLICATE_RECORD}, {e}"}, status=status.HTTP_400_BAD_REQUEST)
 
-    # update - stop here, problem the different between have data= or dont have at BusSerializer 
+    # update 
     def put(self, request, id) : 
         try : 
             bus = self.getObject(id) 
-            serializer = BusSerializer(data=bus)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            # (originalData, theDataWantToUpdate)
+            serializer = BusSerializer(bus, data=request.data)
+
+            if serializer.is_valid() :
+                # check do 2 data is match or not 
+                if serializer.data == serializer.validated_data : 
+                    # old same with new data, no update required 
+                    return Response(
+                            {
+                                "success": f"{message.NO_UPDATE_REQUIRED}",
+                                "redirect": f"/bus?id={serializer.data.get('BusId')}"
+                            },
+                            status=status.HTTP_200_OK)
+                
+                # check carplate exist or not 
+                carplate = serializer.validated_data.get("CarPlateNo")
+                
+                if not BusUtility.isCarPlateExist(carplate) or (BusUtility.isCarPlateExist(carplate) and serializer.data.get("CarPlateNo") == carplate) : 
+                    # car plate is in correct way 
+                    serializer.save()
+                    return Response(
+                            {
+                                "success": f"{message.UPDATE_SUCCESS}",
+                                "redirect": f"/bus?id={serializer.data.get('BusId')}"
+                            },
+                            status=status.HTTP_200_OK)
+                else :
+                    # duplicate carplate
+                    return Response({"error": f"{message.DUPLICATE_RECORD}, Car Plate No {carplate} Already Exist"}, status=status.HTTP_400_BAD_REQUEST)
+            else : 
+                # formating problem 
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except ObjectDoesNotExist as e : 
-            return Response({"not_found": f"{message.NOT_FOUND}, {e}"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": f"{message.NOT_FOUND}, {e}"}, status=status.HTTP_404_NOT_FOUND)
         except MultipleObjectsReturned as e :
-            return Response({"bad_request": f"{message.DUPLICATE_RECORD}, {e}"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": f"{message.DUPLICATE_RECORD}, {e}"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, id) :
+        try : 
+            bus = self.getObject(id)
+            bus.delete()
+            return Response(
+                        {
+                            "success": f"{message.DELETE_SUCCESS}, ID : {id}",
+                            "redirect": f"/bus?id={id}"
+                        },
+                        status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e : 
+            return Response({"error": f"{message.NOT_FOUND}, {e}"}, status=status.HTTP_404_NOT_FOUND)
+        except MultipleObjectsReturned as e :
+            return Response({"error": f"{message.DUPLICATE_RECORD}, {e}"}, status=status.HTTP_400_BAD_REQUEST)
+        
+class BusUtility() : 
+    def isCarPlateExist(carplate: str) : 
+        return Bus.objects.filter(CarPlateNo=carplate).exists()
 

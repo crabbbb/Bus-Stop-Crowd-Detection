@@ -5,3 +5,4 @@ images/
 .env
 yolo_models/
 *.pt
+node_modules/

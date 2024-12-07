@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 class Bus(models.Model) :
     # variable name will be the field name of the collection
     # data inside collections
-    BusId = models.CharField(max_length=5)
+    BusId = models.CharField(max_length=5, blank=True, null=True)
     CarPlateNo = models.CharField(max_length=7)
     Capacity = models.IntegerField()
     IsActive = models.BooleanField()

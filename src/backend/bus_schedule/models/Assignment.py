@@ -15,7 +15,7 @@ class Assignment(models.Model) :
     
     # variable name will be the field name of the collection
     # data inside collections
-    AssignmentId = models.CharField(max_length=5)
+    AssignmentId = models.CharField(max_length=5, blank=True, null=True)
     Time = models.TimeField()
     DayOfWeek = models.IntegerField(choices=Day.choices)
     BusId = models.CharField(max_length=5)

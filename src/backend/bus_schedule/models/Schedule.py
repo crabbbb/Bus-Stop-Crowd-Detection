@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 class Schedule(models.Model) :
     # variable name will be the field name of the collection
     # data inside collections
-    ScheduleId = models.CharField(max_length=5)
+    ScheduleId = models.CharField(max_length=5, blank=True, null=True)
     IsActive = models.BooleanField()
     CreateAt = models.DateTimeField(auto_now=True)
 

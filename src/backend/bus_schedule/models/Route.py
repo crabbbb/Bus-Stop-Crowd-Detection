@@ -5,8 +5,8 @@ from django.core.exceptions import ValidationError
 class Route(models.Model) :
     # variable name will be the field name of the collection
     # data inside collections
-    RouteId = models.CharField(max_length=5)
-    RouteDescription = models.TextField() 
+    RouteId = models.CharField(max_length=5, blank=True, null=True)
+    RouteDescription = models.TextField(blank=True, null=True) 
     RouteDuration = models.IntegerField() # In minute 
     FromCampus = models.BooleanField()
     IsActive = models.BooleanField()

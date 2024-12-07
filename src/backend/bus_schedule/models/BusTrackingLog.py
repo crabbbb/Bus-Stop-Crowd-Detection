@@ -22,10 +22,10 @@ class BusTrackingLog (models.Model) :
     # id = models.CharField(max_length=24, primary_key=True, default=lambda: str(ObjectId()))
 
     # data inside collections
-    ArrivalDateTime = models.DateTimeField()
+    ArrivalDateTime = models.DateTimeField(blank=True, null=True)
     AssignmentId = models.CharField(max_length=5) 
     BusStatus = models.CharField(max_length=5, choices=Status.choices)
-    BusCapacityEstimate = models.CharField(max_length=5, choices=Capacity.choices)
+    BusCapacityEstimate = models.CharField(max_length=5, choices=Capacity.choices, blank=True, null=True)
 
     # overwrite the original version
     def save(self, *args, **kwargs) :

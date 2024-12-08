@@ -2,6 +2,6 @@ from django.urls import path
 from .views import BusListView, BusDetailView
 
 urlpatterns = [
-    path('buses/', BusListView.as_view(), name='bus-list'),  # Endpoint for listing/creating buses
-    path('buses/<str:pk>/', BusDetailView.as_view(), name='bus-detail'),  # Endpoint for retrieving/updating/deleting a bus
+    path('bus/', BusListView.as_view(), name='busList'),  # Endpoint for listing/creating buses
+    path('bus/<str:id>/', BusDetailView.as_view(), name='busDetail'),  # Endpoint for retrieving/updating/deleting a bus
 ]

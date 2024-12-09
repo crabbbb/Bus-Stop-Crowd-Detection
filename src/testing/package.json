@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "testing",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -12,11 +12,9 @@
   "dependencies": {
     "@nextui-org/react": "^2.6.5",
     "@nextui-org/use-theme": "^2.1.1",
-    "axios": "^1.7.9",
     "framer-motion": "^11.13.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^7.0.2"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",

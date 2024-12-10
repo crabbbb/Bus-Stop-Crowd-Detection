@@ -7,4 +7,4 @@ class BusScheduleConfig(AppConfig):
 
     # def ready(self) : 
     #     # the action here will be automoated run after the app is ready 
-    #     setup()
+    #     # setup()

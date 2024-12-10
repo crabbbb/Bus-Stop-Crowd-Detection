@@ -1,18 +1,19 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from models.Bus import Bus
-from serializer import BusSerializer
+from ..models import Bus
+from ..serializer import BusSerializer
 from backend.utils import message
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
-
 # no need id to create 
 class BusListView(APIView) : 
     # get all 
     def get(self, request) :
+        print("Get Function active ")
+        print("Query Params:", request.query_params)
         # if have request filter it 
         bid = request.query_params.get("BusId")
         carplate = request.query_params.get("CarPlateNo")
@@ -21,8 +22,9 @@ class BusListView(APIView) :
 
         # get all bus from database 
         buss = Bus.objects.all()
-
+        print(bid)
         if buss.exists() : 
+            print("exist")
             if bid :
                 # filter id 
                 buss = buss.filter(BusId=bid)
@@ -50,6 +52,7 @@ class BusListView(APIView) :
     # create
     @method_decorator(ensure_csrf_cookie, name="dispatch")
     def post(self, request) :
+        
         serializer = BusSerializer(data=request.data)
 
         # will check the attribute format, min max and is empty or not - all will return false 
@@ -73,6 +76,7 @@ class BusListView(APIView) :
     
 class BusDetailView(APIView) :
     def getObject(self, id) :
+        print("Get Function active2")
         try : 
             return Bus.objects.get(BusId=id)
         except ObjectDoesNotExist as e : 
@@ -81,6 +85,7 @@ class BusDetailView(APIView) :
             raise MultipleObjectsReturned(e)
 
     def get(self, request, id) :
+        
         try : 
             bus = self.getObject(id) 
             serializer = BusSerializer(bus)

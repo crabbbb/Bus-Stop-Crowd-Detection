@@ -1,0 +1,59 @@
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+
+@import url('https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;500;600;700;800&display=swap');
+
+@font-face {
+    font-family: AbhayaLibre;
+    src: url('https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;500;600;700;800&display=swap');
+}
+
+$headings-font-family:  "AbhayaLibre";
+$headings-color: rgb(43 106 70);
+
+$font-family-sans-serif: 'Roboto', sans-serif;
+$body-color: #333333;
+
+$body-bg: #f6fbf3;
+$header-bg: #dfe4dd;
+
+// Customize theme colors
+$theme-colors: (
+    "primary":    rgb(43 106 70),
+    "secondary":  #b5ccb9,
+    "success":    #94d5a9, 
+    "info":       #beeaf7,
+    "warning":    $warning,
+    "danger":     #ba1a1a, 
+    "light":      $light,
+    "dark":       $dark
+);
+
+// font size 
+$font-size-base: 14px; // default 
+$font-size-lg: 1.25rem; // larger 
+$font-size-sm: 0.875rem; // smaller
+
+@import "node_modules/bootstrap/scss/bootstrap";
+
+/* custom */
+.bg-header {
+    background-color: #d6dbd4 !important;
+}
+
+.bg-sur-container {
+    background-color: #eaefe8 !important;
+}
+
+.header-font {
+    color: rgb(43 106 70) !important;
+    font-family: "AbhayaLibre" !important;
+} 
+
+.cus-font {
+    font-family: "AbhayaLibre" !important;
+}
+
+.fs-cus-1 {
+    font-size: 12px !important;
+}

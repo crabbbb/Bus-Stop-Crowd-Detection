@@ -17,7 +17,8 @@ class BusListView(APIView) :
         # if have request filter it 
         bid = request.query_params.get("BusId")
         carplate = request.query_params.get("CarPlateNo")
-        capacity = request.query_params.get("Capacity")
+        minCapacity = request.query_params.get("MinCapacity")
+        maxCapacity = request.query_params.get("MaxCapacity")
         isActive = request.query_params.get("IsActive")
 
         # get all bus from database 
@@ -27,24 +28,29 @@ class BusListView(APIView) :
             print("exist")
             if bid :
                 # filter id 
-                buss = buss.filter(BusId=bid)
+                buss = buss.filter(BusId__icontains=bid)
             if carplate : 
                 # filter carplate 
-                buss = buss.filter(CarPlateNo=carplate)
-            if capacity : 
+                buss = buss.filter(CarPlateNo__icontains=carplate)
+            if minCapacity : 
                 # convert capacity to int 
-                capacity = int(capacity)
-                # filter capacity 
-                buss = buss.filter(Capacity=capacity)
+                minCapacity = int(minCapacity)
+                # greter than equal 
+                buss = buss.filter(Capacity__gte=minCapacity)
+            if maxCapacity : 
+                maxCapacity = int(maxCapacity)
+                # less than equal 
+                buss = buss.filter(Capacity__lte=maxCapacity)
             if isActive : 
                 # change format 
-                isActive = isActive.upper()
+                isActive = int(isActive)
                 # filter isActive 
-                buss = buss.filter(IsActive=isActive == "TRUE")
+                buss = buss.filter(IsActive=isActive)
             
             if buss.exists() : 
                 # after filter still have data 
                 serializer = BusSerializer(buss, many=True)
+                print(f"{serializer.data}")
                 return Response(serializer.data, status=status.HTTP_200_OK)
         
         return Response({"error": message.NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)

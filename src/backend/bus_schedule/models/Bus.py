@@ -3,6 +3,7 @@ from bson.objectid import ObjectId
 from django.core.exceptions import ValidationError
 from django.db.models import F
 from django.db.models.functions import Substr, Cast
+from ._TrueFalse import _TrueFalse
 
 class Bus(models.Model) :
     # variable name will be the field name of the collection
@@ -10,7 +11,7 @@ class Bus(models.Model) :
     BusId = models.CharField(max_length=5, blank=True, null=True)
     CarPlateNo = models.CharField(max_length=7)
     Capacity = models.IntegerField()
-    IsActive = models.BooleanField()
+    IsActive = models.IntegerField(choices=_TrueFalse.choices, default=_TrueFalse.ACTIVE)
 
     # overwrite the original version
     def save(self, *args, **kwargs) :

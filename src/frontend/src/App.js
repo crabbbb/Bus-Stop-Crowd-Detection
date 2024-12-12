@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './theme/custom_theme.scss';
+import 'jquery/dist/jquery.min.js'
 import 'bootstrap-icons/font/bootstrap-icons.css'; // bootstrap Icon
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // bootstrap javascript 
-import {RedirectBtn} from './components/shared/redirect_btn';
 import {HomePage} from './pages/home_page';
 import routes from './routes';
 import {BusPage} from './pages/bus_page';

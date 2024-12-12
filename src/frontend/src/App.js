@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './theme/custom_theme.scss';
 import 'jquery/dist/jquery.min.js'
 import 'bootstrap-icons/font/bootstrap-icons.css'; // bootstrap Icon
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // bootstrap javascript 
-import {HomePage} from './pages/home_page';
-import routes from './routes';
-import {BusPage} from './pages/bus_page';
-import {BusDisplay} from './components/bus/bus_display';
-import {Header} from './components/shared/header';
+import { HomePage } from './pages/home_page';
+import { Header } from './components/shared/header';
+import { staticRoutes } from './routes/routes';
+import BusRoutes from './routes/app/bus_router';
 
 const NotFoundPage = () => <h1 className="center">404 NOT FOUND!!</h1>
 
@@ -75,11 +74,12 @@ function App() {
     <Router>
       <Header />
       <Routes>
-        <Route path={routes.home} element={<HomePage />} />
-        <Route path={routes.bus} element={<BusPage />} />
-        <Route path="/bus/display" element={<BusDisplay />} />
+        <Route path={staticRoutes.home} element={<HomePage />} />
+        {/* others */}
         <Route path="/test" element={<Timer />} />
         <Route path="*" element={<NotFoundPage />} />
+        {/* bus */}
+        {BusRoutes}
       </Routes>
     </Router>
   );

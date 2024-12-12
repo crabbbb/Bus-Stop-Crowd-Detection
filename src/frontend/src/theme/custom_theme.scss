@@ -30,13 +30,17 @@ $theme-colors: (
 );
 
 // font size 
-$font-size-base: 14px; // default 
+$font-size-base: 20px; // default 
 $font-size-lg: 1.25rem; // larger 
 $font-size-sm: 0.875rem; // smaller
 
 @import "node_modules/bootstrap/scss/bootstrap";
 
 /* custom */
+.fs-logo {
+    font-size: 35px !important;
+}
+
 .bg-header {
     background-color: #d6dbd4 !important;
 }
@@ -55,7 +59,7 @@ $font-size-sm: 0.875rem; // smaller
 }
 
 .fs-cus-1 {
-    font-size: 12px !important;
+    font-size: 20px !important;
 }
 
 

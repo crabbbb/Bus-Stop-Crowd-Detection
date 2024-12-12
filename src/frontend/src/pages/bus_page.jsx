@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import routes from '../routes';
+import routes from '../routes/routes';
 import BusDisplay from '../components/bus/bus_display';
 
 export function BusPage() {

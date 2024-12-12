@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import BusRootes from '../../api/rootes/bus_rootes';
-import bus_schedule from '../../api/bus_schedule';
+import BusRootes from '../../routes/api/rootes/bus_rootes';
+import bus_schedule from '../../routes/api/bus_schedule';
 import axios from 'axios';
+import { RedirectBtn } from '../shared/redirect_btn';
+import { dynamicRoutes } from '../../routes/routes';
 
 export function BusDisplay() {
     // use to handle the data to be display 
@@ -49,8 +51,8 @@ export function BusDisplay() {
 
             // send together with filter 
             const queryParams = new URLSearchParams(params).toString();
-            const response = await axios.get(`http://127.0.0.1:8000/busSchedule/bus?${queryParams}`);
-            // const response = await BusRootes.getBuss({params});
+            // const response = await axios.get(`http://127.0.0.1:8000/busSchedule/bus?${queryParams}`);
+            const response = await BusRootes.getBuss(queryParams);
 
             // set response to responses
             setResponses(response.data);
@@ -63,7 +65,7 @@ export function BusDisplay() {
             } else {
                 setErrors("An unexpected error occurred.");
             }
-        }finally{
+        } finally {
             // keep track spinner, when responses have success update change the state 
             setIsLoading(false)
             setIsDisabled(false)
@@ -150,6 +152,8 @@ export function BusDisplay() {
             CarPlateNo: "",
             IsActive: ""
         }));
+
+        fetchData();
     };
 
     // initial fecthing when page load
@@ -238,6 +242,7 @@ export function BusDisplay() {
                         <th scope="col">Car Plate No</th>
                         <th scope="col">Capacity</th>
                         <th scope="col">Bus Status</th>
+                        <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -247,6 +252,14 @@ export function BusDisplay() {
                                 <td>{bus["Capacity"]}</td>
                                 <td>{bus["CarPlateNo"]}</td>
                                 <td>{bus["IsActive"] === 0 ? "✅" : "❌"}</td>
+                                <td>
+                                    {/* btn */}
+                                    <RedirectBtn
+                                        redirectTo={dynamicRoutes.busDetail(bus["BusId"])}
+                                        btnContent="OBJECT DETECTION"
+                                        btnClass="btn btn-secondary m-4 w-50 h-75 cus-font"
+                                    />
+                                </td>
                             </tr>
                         ))}
                     </tbody>

@@ -1,10 +1,10 @@
 import React from 'react';
-import routes from '../routes';
+import { staticRoutes } from '../routes/routes';
 
 export function SuperAdminRedirect() {
     
     const handleRedirect = () => {
-        window.location.href = routes.superadmin; // Django default admin URL
+        window.location.href = staticRoutes.superadmin; // Django default admin URL
     };
 
     return (

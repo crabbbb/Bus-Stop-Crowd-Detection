@@ -23,9 +23,7 @@ class BusListView(APIView) :
 
         # get all bus from database 
         buss = Bus.objects.all()
-        print(bid)
         if buss.exists() : 
-            print("exist")
             if bid :
                 # filter id 
                 buss = buss.filter(BusId__icontains=bid)
@@ -50,7 +48,6 @@ class BusListView(APIView) :
             if buss.exists() : 
                 # after filter still have data 
                 serializer = BusSerializer(buss, many=True)
-                print(f"{serializer.data}")
                 return Response(serializer.data, status=status.HTTP_200_OK)
         
         return Response({"error": message.NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
@@ -82,7 +79,6 @@ class BusListView(APIView) :
     
 class BusDetailView(APIView) :
     def getObject(self, id) :
-        print("Get Function active2")
         try : 
             return Bus.objects.get(BusId=id)
         except ObjectDoesNotExist as e : 
@@ -95,7 +91,8 @@ class BusDetailView(APIView) :
         try : 
             bus = self.getObject(id) 
             serializer = BusSerializer(bus)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            print(f"{serializer.data}")
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist as e : 
             return Response({"error": f"{message.NOT_FOUND}, {e}"}, status=status.HTTP_404_NOT_FOUND)
         except MultipleObjectsReturned as e :

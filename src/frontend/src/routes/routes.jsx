@@ -9,7 +9,7 @@ const staticRoutes = {
 
 // dynamic required to pass in some value 
 const dynamicRoutes = {
-    busDetail: (id) => `/bus/detail/${id}`, 
+    detail: (where, id) => `/${where}/detail/${id}`, 
 }
 
 export { staticRoutes, dynamicRoutes };

@@ -50,7 +50,7 @@ class BusListView(APIView) :
                 serializer = BusSerializer(buss, many=True)
                 return Response(serializer.data, status=status.HTTP_200_OK)
         
-        return Response({"error": message.NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"message": message.NOT_FOUND}, status=status.HTTP_200_OK)
     
     # create
     @method_decorator(ensure_csrf_cookie, name="dispatch")

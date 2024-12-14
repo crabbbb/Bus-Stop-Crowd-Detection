@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import BusRootes from '../routes/api/rootes/bus_rootes';
-import { RedirectBtn } from '../components/shared/redirect_btn';
-import { dynamicRoutes } from '../routes/routes';
 import { Table } from '../components/shared/table';
 import { Spinner } from '../components/shared/spinner';
+import { ErrorMessage, InfoMessage } from '../components/shared/display_message';
 
 export function BusPage() {
     const colName = ["Bus Id", "Car Plate No", "Capacity", "Bus Status"];
@@ -22,7 +21,11 @@ export function BusPage() {
                                         IsActive: "" 
                                     });
     // use to handle the error send back from backend 
-    const [errors, setErrors] = useState([])
+    const [errors, setErrors] = useState({
+                                    requestErrors: "",
+                                    responseErrors: "",
+                                    unexpectedErrors: ""
+                                });
 
     // spinner 
     const [isLoading, setIsLoading] = useState(true);
@@ -52,22 +55,32 @@ export function BusPage() {
             setResponses(null);
             setErrors(null);
             setIsLoading(true);
+            setIsDisabled(true);
 
             // send together with filter 
             const queryParams = new URLSearchParams(params).toString();
             // const response = await axios.get(`http://127.0.0.1:8000/busSchedule/bus?${queryParams}`);
             const response = await BusRootes.getBuss(queryParams);
-
+            console.log(response)
             // set response to responses
             setResponses(response.data);
         } catch (err) {
             // store err in error
             if (err.response) {
-                setErrors(`Error ${err.response.status}: ${err.response.statusText}`);
+                setErrors((prev) => ({
+                    ...prev,
+                    responseErrors: `${err.response.statusText}`
+                }));
             } else if (err.request) {
-                setErrors("No response from the server. Please try again later.");
+                setErrors((prev) => ({
+                    ...prev,
+                    requestErrors: "No response from the server. Please try again later"
+                }));
             } else {
-                setErrors("An unexpected error occurred.");
+                setErrors((prev) => ({
+                    ...prev,
+                    unexpectedErrors: "An unexpected error occurred"
+                }));
             }
         } finally {
             // keep track spinner, when responses have success update change the state 
@@ -181,7 +194,7 @@ export function BusPage() {
                     <div className='col'>
                         <label class="col-form-label ps-1" for="Capacity">Bus Capacity <span class="badge bg-warning">(Must greater than 0)</span> : </label>
                         <div className="d-flex">
-                            <input type="number" class="form-control fs-cus-1" placeholder="Minimum Capacity" id="MinCapacity" name='MinCapacity' min={0} value={filters.MinCapacity} onChange={handleChange} onKeyDown={(e) => {
+                            <input type="number" className={`form-control fs-cus-1 ${"is-valid" ? filtersError.MinCapacity.e : ""}`}  placeholder="Minimum Capacity" id="MinCapacity" name='MinCapacity' min={0} value={filters.MinCapacity} onChange={handleChange} onKeyDown={(e) => {
                                 if (e.key === "-") {
                                     // prevent user type negative value
                                     e.preventDefault();
@@ -189,7 +202,7 @@ export function BusPage() {
                             }} />
                             <span className="ms-1 me-1 align-bottom">-</span>
                             {/* max */}
-                            <input type="number" class="form-control fs-cus-1" placeholder="Maximum Capacity" id="MaxCapacity" name='MaxCapacity' min={0} value={filters.MaxCapacity} onChange={handleChange} onKeyDown={(e) => {
+                            <input type="number" className={`form-control fs-cus-1 ${"is-valid" ? filtersError.MaxCapacity.e : ""}`} placeholder="Maximum Capacity" id="MaxCapacity" name='MaxCapacity' min={0} value={filters.MaxCapacity} onChange={handleChange} onKeyDown={(e) => {
                                 if (e.key === "-") {
                                     // prevent user type negative value
                                     e.preventDefault();
@@ -226,7 +239,10 @@ export function BusPage() {
             {isLoading ? (
                 <Spinner />
             ) : errors ? (
-                <p style={{ color: "red" }}>{errors}</p>
+                // show error message 
+                <ErrorMessage 
+                    err={errors}
+                />
             ) : responses && responses.length > 0 ? (
                 // have data 
                 <Table
@@ -237,8 +253,11 @@ export function BusPage() {
                 />
             ) : (
                 // success load but dont have data 
-                <p>No Record Found</p>
+                // print no record found by using a div
+                <InfoMessage 
+                    message={responses["message"]}
+                />
             )}
-            </div>
+        </div>
         );
 }

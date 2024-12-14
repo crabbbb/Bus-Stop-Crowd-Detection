@@ -4,6 +4,7 @@ const staticRoutes = {
     schedule: "/schedule",
     bus: "/bus",
     busDetail: "/bus/detail/:id", // static for router configuration
+    route : "/route",
     superadmin: "http://127.0.0.1:8000/admin/",
 };
 

@@ -1,7 +1,9 @@
 import React from "react";
 import { staticRoutes } from "../../routes/routes";
 
-export function Header() {
+export function Header(who) {
+    const active = "active fw-semibold text-decoration-underline text-primary";
+
     return (
         <nav class="navbar navbar-expand-lg bg-header header-font" data-bs-theme="light">
         <div class="container-fluid">
@@ -12,25 +14,16 @@ export function Header() {
             <div class="collapse navbar-collapse" id="navbarColor03">
                 <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link active fw-semibold text-decoration-underline rounded text-primary" href={staticRoutes.home}>Home</a>
+                    <a className={`nav-link ${active ? who == headerChoice.home : ""}`} href={staticRoutes.home}>{headerChoice.home}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/test">Test</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Pricing</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">About</a>
+                    <a className={`nav-link ${active ? who == headerChoice.test : ""}`} href="/test">{headerChoice.test}</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Bus Schedule Management</a>
                     <div class="dropdown-menu bg-header">
-                    <a class="dropdown-item" href="#">Action</a>
-                    <a class="dropdown-item" href="#">Another action</a>
-                    <a class="dropdown-item" href="#">Something else here</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">Separated link</a>
+                        <a className={`dropdown-item ${active ? who == headerChoice.bus : ""}`} href={staticRoutes.bus}>{headerChoice.bus}</a>
+                        <a className={`dropdown-item ${active ? who == headerChoice.route : ""}`} href={staticRoutes.route}>{headerChoice.route}</a>
                     </div>
                 </li>
                 </ul>
@@ -39,4 +32,12 @@ export function Header() {
         </nav>
     );
 };
+
+export const headerChoice = {
+    test : "Test",
+    home : "Home", 
+    bus : "Bus",
+    station : "Station",
+    route : "Route",
+}
 

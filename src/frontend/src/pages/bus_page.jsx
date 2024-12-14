@@ -3,6 +3,7 @@ import BusRootes from '../routes/api/rootes/bus_rootes';
 import { Table } from '../components/shared/table';
 import { Spinner } from '../components/shared/spinner';
 import { ErrorMessage, InfoMessage } from '../components/shared/display_message';
+import { Header, headerChoice } from '../components/shared/header';
 
 export function BusPage() {
     const colName = ["Bus Id", "Car Plate No", "Capacity", "Bus Status"];
@@ -180,84 +181,89 @@ export function BusPage() {
 
 
     return (
-        <div className='p-4'>
-            {/* filter input */}
-            <form className='bg-sur-container p-4 rounded-top'>
-                <legend className='text-primary cus-font'><b>BUS MANAGEMENT</b></legend>
-                <div className='row'>
-                    {/* bus id - text */}
-                    <div className='col'>
-                        <label class="col-form-label ps-1" for="BusId">Bus Id :</label>
-                        <input type="text" className="form-control fs-cus-1" placeholder="Filter By Bus Id" id="BusId" name="BusId" value={filters.BusId} onChange={handleChange} />
-                    </div>
-                    {/* capacity */}
-                    <div className='col'>
-                        <label class="col-form-label ps-1" for="Capacity">Bus Capacity <span class="badge bg-warning">(Must greater than 0)</span> : </label>
-                        <div className="d-flex">
-                            <input type="number" className={`form-control fs-cus-1 ${"is-valid" ? filtersError.MinCapacity.e : ""}`}  placeholder="Minimum Capacity" id="MinCapacity" name='MinCapacity' min={0} value={filters.MinCapacity} onChange={handleChange} onKeyDown={(e) => {
-                                if (e.key === "-") {
-                                    // prevent user type negative value
-                                    e.preventDefault();
-                                }
-                            }} />
-                            <span className="ms-1 me-1 align-bottom">-</span>
-                            {/* max */}
-                            <input type="number" className={`form-control fs-cus-1 ${"is-valid" ? filtersError.MaxCapacity.e : ""}`} placeholder="Maximum Capacity" id="MaxCapacity" name='MaxCapacity' min={0} value={filters.MaxCapacity} onChange={handleChange} onKeyDown={(e) => {
-                                if (e.key === "-") {
-                                    // prevent user type negative value
-                                    e.preventDefault();
-                                }
-                            }} />
+        <div>
+            <Header
+                who={headerChoice.bus}
+            />
+            <div className='p-4'>
+                {/* filter input */}
+                <form className='bg-sur-container p-4 rounded-top'>
+                    <legend className='text-primary cus-font'><b>BUS MANAGEMENT</b></legend>
+                    <div className='row'>
+                        {/* bus id - text */}
+                        <div className='col'>
+                            <label class="col-form-label ps-1" for="BusId">Bus Id :</label>
+                            <input type="text" className="form-control fs-cus-1" placeholder="Filter By Bus Id" id="BusId" name="BusId" value={filters.BusId} onChange={handleChange} />
                         </div>
-                        {/* error message for wrong capacity */}
-                        <div className={`fs-cus-1 p-1 text-danger ${ filtersError.MaxCapacity.e ? "" : filtersError.MinCapacity.e ? "" : "visually-hidden"}`}>{filtersError.MinCapacity.message}</div>
+                        {/* capacity */}
+                        <div className='col'>
+                            <label class="col-form-label ps-1" for="Capacity">Bus Capacity <span class="badge bg-warning">(Must greater than 0)</span> : </label>
+                            <div className="d-flex">
+                                <input type="number" className={`form-control fs-cus-1 ${"is-valid" ? filtersError.MinCapacity.e : ""}`}  placeholder="Minimum Capacity" id="MinCapacity" name='MinCapacity' min={0} value={filters.MinCapacity} onChange={handleChange} onKeyDown={(e) => {
+                                    if (e.key === "-") {
+                                        // prevent user type negative value
+                                        e.preventDefault();
+                                    }
+                                }} />
+                                <span className="ms-1 me-1 align-bottom">-</span>
+                                {/* max */}
+                                <input type="number" className={`form-control fs-cus-1 ${"is-valid" ? filtersError.MaxCapacity.e : ""}`} placeholder="Maximum Capacity" id="MaxCapacity" name='MaxCapacity' min={0} value={filters.MaxCapacity} onChange={handleChange} onKeyDown={(e) => {
+                                    if (e.key === "-") {
+                                        // prevent user type negative value
+                                        e.preventDefault();
+                                    }
+                                }} />
+                            </div>
+                            {/* error message for wrong capacity */}
+                            <div className={`fs-cus-1 p-1 text-danger ${ filtersError.MaxCapacity.e ? "" : filtersError.MinCapacity.e ? "" : "visually-hidden"}`}>{filtersError.MinCapacity.message}</div>
+                        </div>
                     </div>
-                </div>
-                <div className='row'>
-                    {/* carplate - text */}
-                    <div className='col'>
-                        <label class="col-form-label ps-1" for="CarPlateNo">Car Plate No. :</label>
-                        <input type="text" class="form-control fs-cus-1" placeholder="Filter By Car Plate No" id="CarPlateNo" name='CarPlateNo' value={filters.CarPlateNo} onChange={handleChange} />
+                    <div className='row'>
+                        {/* carplate - text */}
+                        <div className='col'>
+                            <label class="col-form-label ps-1" for="CarPlateNo">Car Plate No. :</label>
+                            <input type="text" class="form-control fs-cus-1" placeholder="Filter By Car Plate No" id="CarPlateNo" name='CarPlateNo' value={filters.CarPlateNo} onChange={handleChange} />
+                        </div>
+                        {/* is active - checklist */}
+                        <div className='col'>
+                            <label for="IsActive" class="col-form-label ps-1">Bus Status :</label>
+                            <select class="form-select fs-cus-1" id="IsActive" name='IsActive' value={filters.IsActive} onChange={handleChange}>
+                                <option>-</option>
+                                <option value={0}>{active}</option>
+                                <option value={1}>{notactive}</option>
+                            </select>
+                        </div>
                     </div>
-                    {/* is active - checklist */}
-                    <div className='col'>
-                        <label for="IsActive" class="col-form-label ps-1">Bus Status :</label>
-                        <select class="form-select fs-cus-1" id="IsActive" name='IsActive' value={filters.IsActive} onChange={handleChange}>
-                            <option>-</option>
-                            <option value={0}>{active}</option>
-                            <option value={1}>{notactive}</option>
-                        </select>
+                    <div className='row text-end d-flex justify-content-end mt-4'>
+                        <div className='w-50'>
+                            <button type="button" className="btn btn-warning fs-cus-1 w-25 me-2 rounded-pill" onClick={clearFilter}>Clear</button>
+                            <button type="button" className={`btn ${isDisabled ? "btn-grey" : "btn-info"} fs-cus-1 w-25 me-3 rounded-pill `} disabled={isDisabled} onClick={handleSubmit}>Filter</button>
+                        </div>
                     </div>
-                </div>
-                <div className='row text-end d-flex justify-content-end mt-4'>
-                    <div className='w-50'>
-                        <button type="button" className="btn btn-warning fs-cus-1 w-25 me-2 rounded-pill" onClick={clearFilter}>Clear</button>
-                        <button type="button" className={`btn ${isDisabled ? "btn-grey" : "btn-info"} fs-cus-1 w-25 me-3 rounded-pill `} disabled={isDisabled} onClick={handleSubmit}>Filter</button>
-                    </div>
-                </div>
-            </form>
-            {isLoading ? (
-                <Spinner />
-            ) : errors ? (
-                // show error message 
-                <ErrorMessage 
-                    err={errors}
-                />
-            ) : responses && responses.length > 0 ? (
-                // have data 
-                <Table
-                    colName={colName}
-                    dataName={dataName}
-                    rowData={responses}
-                    where={where}
-                />
-            ) : (
-                // success load but dont have data 
-                // print no record found by using a div
-                <InfoMessage 
-                    message={responses["message"]}
-                />
-            )}
+                </form>
+                {isLoading ? (
+                    <Spinner />
+                ) : errors ? (
+                    // show error message 
+                    <ErrorMessage 
+                        err={errors}
+                    />
+                ) : responses && responses.length > 0 ? (
+                    // have data 
+                    <Table
+                        colName={colName}
+                        dataName={dataName}
+                        rowData={responses}
+                        where={where}
+                    />
+                ) : (
+                    // success load but dont have data 
+                    // print no record found by using a div
+                    <InfoMessage 
+                        message={responses["message"]}
+                    />
+                )}
+            </div>
         </div>
         );
 }

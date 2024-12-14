@@ -5,7 +5,6 @@ import 'jquery/dist/jquery.min.js'
 import 'bootstrap-icons/font/bootstrap-icons.css'; // bootstrap Icon
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // bootstrap javascript 
 import { HomePage } from './pages/home_page';
-import { Header } from './components/shared/header';
 import { staticRoutes } from './routes/routes';
 import BusRoutes from './routes/app/bus_router';
 
@@ -72,7 +71,6 @@ function Timer() {
 function App() {
   return (
     <Router>
-      <Header />
       <Routes>
         <Route path={staticRoutes.home} element={<HomePage />} />
         {/* others */}

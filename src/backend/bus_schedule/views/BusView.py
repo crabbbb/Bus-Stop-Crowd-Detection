@@ -106,7 +106,8 @@ class BusListView(APIView) :
             return Response({"error" : message.DATABASE_CONNECTION_ERROR}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class BusUtility(APIView) :
-    
+
+    # get carplate 
     def get(self, request) : 
         # check data is none or not 
         carplate = request.query_params.get('CarPlateNo', None)

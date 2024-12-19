@@ -19,12 +19,12 @@ export function Table({colName, dataName, rowData, where}) {
                     </thead>
                     <tbody>
                         {rowData.map((data) => (
-                        <tr scope="row" key={data[dataName[0]]}>
+                        <tr key={data[dataName[0]]}>
                             {dataName.map((name) => {
                                 if (name === "IsActive") {
-                                    return (<td scope="col" key={`${data[dataName[0]]}-${name}`}>{data["IsActive"] === 0 ? "✅" : "❌"}</td>)
+                                    return (<td key={`${data[dataName[0]]}-${name}`}>{data["IsActive"] === 0 ? "✅" : "❌"}</td>)
                                 } else {
-                                    return (<td scope="col" key={`${data[dataName[0]]}-${name}`}>{data[name]}</td>)
+                                    return (<td key={`${data[dataName[0]]}-${name}`}>{data[name]}</td>)
                                 }
                             })}
                             <td>

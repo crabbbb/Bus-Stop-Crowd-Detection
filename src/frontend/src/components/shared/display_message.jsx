@@ -19,10 +19,10 @@ export function SuccessMessage({message}) {
 export function ErrorMessage({err}) {
     return (
         <div class="alert alert-dismissible alert-danger mt-4 fs-cus-1">
-            <h4 class="alert-heading">Error !</h4>
+            <h4 class="alert-heading ms-2"><i class="bi bi-exclamation-triangle-fill"></i> Error !</h4>
             <ul>
                 {Object.keys(err).map((key) => {
-                    if (err[key] != "") {
+                    if (err[key] !== "") {
                         return (<li key={key}>
                             {key} : {err[key]}
                         </li>)

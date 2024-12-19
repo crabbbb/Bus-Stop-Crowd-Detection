@@ -41,8 +41,19 @@ $font-size-sm: 0.875rem; // smaller
     font-size: 35px !important;
 }
 
+$orange-cus: #F26B0F;
+$blue-cus: #7695FF;
+
 .bg-header {
     background-color: #d6dbd4 !important;
+}
+
+.bg-orange {
+    background-color: $orange-cus !important;
+}
+
+.bg-blue {
+    background-color: $blue-cus !important;
 }
 
 .bg-sur-container {

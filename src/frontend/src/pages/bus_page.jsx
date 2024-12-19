@@ -7,6 +7,7 @@ import { ErrorMessage, InfoMessage, SuccessMessage } from '../components/shared/
 import { Header, headerChoice } from '../components/shared/header';
 import { FloatingBtn } from '../components/shared/floating_btn';
 import { staticRoutes } from '../routes/routes';
+import { Icontooltip } from '../components/shared/tooltips';
 
 export function BusPage() {
     // receive message that pass from create, update and delete 
@@ -201,7 +202,7 @@ export function BusPage() {
                         </div>
                         {/* capacity */}
                         <div className='col'>
-                            <label className="col-form-label ps-1" for="Capacity">Bus Capacity <span className="badge bg-warning">(Must greater than 0)</span> : </label>
+                            <label className="col-form-label ps-1" for="Capacity">Bus Capacity <Icontooltip icon={"bi-info-circle-fill"} content={"Capacity MUST BE greater than 0"}/> : </label>
                             <div className="d-flex">
                                 <input type="number" className={`form-control fs-cus-1 ${"is-valid" ? filtersError.MinCapacity.e : ""}`}  placeholder="Minimum Capacity" id="MinCapacity" name='MinCapacity' min={0} value={filters.MinCapacity} onChange={handleChange} onKeyDown={(e) => {
                                     if (e.key === "-") {

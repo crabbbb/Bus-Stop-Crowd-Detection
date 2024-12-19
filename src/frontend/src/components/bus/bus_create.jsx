@@ -5,6 +5,7 @@ import { CreateBtn } from '../shared/cud_btn';
 import BusRootes from '../../routes/api/rootes/bus_rootes';
 import { Spinner } from '../shared/spinner';
 import { ErrorMessage, SuccessMessage } from '../shared/display_message';
+import { BusForm } from './bus_form';
 
 export function BusCreate() {
     const navigate = useNavigate();
@@ -138,7 +139,7 @@ export function BusCreate() {
                 navigate(redirect, {state: {successMessage: message}});
             }
 
-            if (response && response.error != "") {
+            if (response && response.error !== "") {
                 console.log(response)
                 // dont have create success, have some error 
                 Object.keys(response.data.error).map((key) => {
@@ -176,50 +177,23 @@ export function BusCreate() {
             <Header 
                 who={headerChoice.bus}
             />
-            {isLoading ? (
-                <Spinner />
-            ) : errors ? (
-                // show error message 
-                <ErrorMessage 
-                    err={errors}
+            <div style={{"height" : "600px", "marginTop" : "100px"}}> 
+                {isLoading ? (
+                    <Spinner />
+                ) : errors ? (
+                    <div className='ps-5 pe-5'>
+                        <ErrorMessage err={errors} />
+                    </div>
+                ) : null}
+                <BusForm
+                    isCreate={true}
+                    carplate={carplate}
+                    form={form}
+                    formErrors={formErrors}
+                    handleSubmit={handleSubmit}
+                    handleChange={handleChange}
+                    isDisabled={isDisabled}
                 />
-            ) : (
-                ""
-            )}
-            
-            <div className='d-flex justify-content-center align-items-center fs-cus-1' style={{"height" : "600px", "marginTop" : "70px"}} >
-                <form className='w-50 bg-light p-5 rounded-3 shadow-lg' onSubmit={handleSubmit}>
-                    <h2 className='fw-bold'>Create New Bus</h2>
-                    <div className="has-success">
-                        <label className="form-label mt-4 ms-1" for="CarPlateNo">Car Plate No. </label>
-                        <input type="text" value={form.CarPlateNo} className={`form-control ${formErrors.CarPlateNo ? "is-invalid" : ""}`} id="CarPlateNo" name="CarPlateNo" onChange={handleChange} placeholder="Eg, ABC1234" />
-                        {/* info for similar pair */}
-                        <div className="text-warning ms-1 mt-1">Similar Car Plate No : {carplate}</div>
-                        <div className={`text-danger ms-1 mb-1 ${formErrors.CarPlateNo != "" ? "" : "visually-hidden"}`}>{formErrors.CarPlateNo}</div>
-                    </div>
-                    <div className="has-success">
-                        <label className="form-label ms-1" for="inputValid">Capacity</label>
-                        <input type="number" className={`form-control fs-cus-1 ${formErrors.Capacity ? "is-invalid" : ""}`}  placeholder="Eg, 10" id="Capacity" name='Capacity' min={0} value={form.Capacity} onChange={handleChange} onKeyDown={(e) => {
-                            if (e.key === "-") {
-                                // prevent user type negative value
-                                e.preventDefault();
-                            }
-                        }} />
-                        <div className={`text-danger ms-1 mb-1 ${formErrors.Capacity != "" ? "" : "visually-hidden"}`}>{formErrors.Capacity}</div>
-                    </div>
-                    <div>
-                        <label for="IsActive" className="col-form-label ps-1">Bus Status :</label>
-                        <select className="form-select fs-cus-1" id="IsActive" name='IsActive' value={form.IsActive} onChange={handleChange}>
-                            <option value={0}>Active</option>
-                            <option value={1}>NotActive</option>
-                        </select>
-                    </div>
-                    <div className='w-100 text-end mt-4'>
-                        <CreateBtn 
-                            isDisabled={isDisabled}
-                        />
-                    </div>
-                </form>
             </div>
         </div>
     )

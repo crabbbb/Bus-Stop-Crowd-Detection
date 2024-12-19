@@ -59,9 +59,17 @@ $font-size-sm: 0.875rem; // smaller
 }
 
 .fs-cus-1 {
-    font-size: 20px !important;
+    font-size: 16px !important;
 }
 
+.floating-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 40px;
+    z-index: 1030; 
+    width: 70px;
+    height: 70px;
+}
 
 // hide input number arrow button 
 /* Chrome, Safari, Edge, Opera */
@@ -73,4 +81,36 @@ input::-webkit-inner-spin-button {
 
 input[type=number] {
     -moz-appearance: textfield;
+}
+
+.navbar-nav .nav-link:active {
+    background-color: transparent; 
+    outline: none; 
+    box-shadow: none; 
+}
+
+// fixed table column 
+.tableFixHead { 
+    overflow: auto; 
+    height: 500px; 
+}
+
+.tableFixHead thead th { 
+    position: sticky;
+    top: 0; 
+    z-index: 1; 
+}
+
+table { 
+    border-collapse: collapse; 
+    width: 100%; 
+    
+}
+
+th, td { 
+    padding: 8px 16px; 
+}
+
+th { 
+    background:#eee;
 }

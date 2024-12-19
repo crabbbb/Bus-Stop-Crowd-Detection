@@ -1,3 +1,3 @@
-from .BusView import BusListView, BusDetailView, BusUtility
+from .BusView import BusListView, BusUtility
 
-__all__ = ["BusListView", "BusDetailView", "BusUtility"]
+__all__ = ["BusListView", "BusUtility"]

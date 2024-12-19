@@ -1,44 +1,15 @@
 # code below will bring help on serializer and de-serializer 
 from rest_framework import serializers
-from .models import Bus, Schedule, ScheduleAssignment, Assignment, BusStation, BusTrackingLog, Route, RouteStation
+from .models.choices import TrueFalse
 
-class BusSerializer(serializers.ModelSerializer) :
-    class Meta :
-        model = Bus
-        # __all__ can be understand as somethings like this ['id', 'name', 'capacity']
-        fields = '__all__' 
+class BusSerializer(serializers.Serializer) :
+    BusId = serializers.CharField(allow_blank=True, required=False)
+    CarPlateNo = serializers.CharField(allow_blank=False, required=False, max_length=7)
+    Capacity = serializers.IntegerField(required=False, min_value=1)
+    IsActive = serializers.IntegerField(required=False, min_value=0)
 
-class ScheduleSerializer(serializers.ModelSerializer) :
-    class Meta : 
-        model = Schedule
-        fields = '__all__'
-
-class ScheduleAssignmentSerializer(serializers.ModelSerializer) :
-    class Meta : 
-        model = ScheduleAssignment
-        fields = '__all__'
-
-class AssignmentSerializer(serializers.ModelSerializer) :
-    class Meta : 
-        model = Assignment
-        fields = '__all__'
-
-class BusStationSerializer(serializers.ModelSerializer) :
-    class Meta : 
-        model = BusStation
-        fields = '__all__'
-
-class BusTrackingLogSerializer(serializers.ModelSerializer) :
-    class Meta : 
-        model = BusTrackingLog
-        fields = '__all__'
-
-class RouteSerializer(serializers.ModelSerializer) :
-    class Meta : 
-        model = Route
-        fields = '__all__'
-
-class RouteStationSerializer(serializers.ModelSerializer) :
-    class Meta : 
-        model = RouteStation
-        fields = '__all__'
+    # custom validation for Capacity
+    def validate_Capacity(self, value):
+        if value >= 0 and value <= 1:
+            raise serializers.ValidationError("Capacity only can be Valid or Invalid")
+        return value

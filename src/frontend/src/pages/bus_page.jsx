@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import BusRootes from '../routes/api/rootes/bus_rootes';
 import { Table } from '../components/shared/table';
 import { Spinner } from '../components/shared/spinner';
-import { ErrorMessage, InfoMessage } from '../components/shared/display_message';
+import { ErrorMessage, InfoMessage, SuccessMessage } from '../components/shared/display_message';
 import { Header, headerChoice } from '../components/shared/header';
+import { FloatingBtn } from '../components/shared/floating_btn';
+import { staticRoutes } from '../routes/routes';
 
 export function BusPage() {
+    // receive message that pass from create, update and delete 
+    const location = useLocation();
+    let { successMessage } = location.state || {};
+
+    // for table 
     const colName = ["Bus Id", "Car Plate No", "Capacity", "Bus Status"];
     const dataName = ["BusId", "CarPlateNo", "Capacity", "IsActive"]; 
     const where = "bus";
@@ -54,15 +62,14 @@ export function BusPage() {
         try {
             // clear out all the previous data 
             setResponses(null);
-            setErrors(null);
             setIsLoading(true);
             setIsDisabled(true);
+            setErrors(null);
 
             // send together with filter 
             const queryParams = new URLSearchParams(params).toString();
-            // const response = await axios.get(`http://127.0.0.1:8000/busSchedule/bus?${queryParams}`);
             const response = await BusRootes.getBuss(queryParams);
-            console.log(response)
+
             // set response to responses
             setResponses(response.data);
         } catch (err) {
@@ -109,10 +116,9 @@ export function BusPage() {
 
         // check min max 
         if (name === "MaxCapacity") {
-            if (filters.MinCapacity && value < filters.MinCapacity) {
+            
+            if (filters.MinCapacity && value < filters.MinCapacity && value > 0) {
                 // max smaller than min
-                console.log("hello max")
-                
                 // set the error message 
                 setFiltersError((prev) => ({
                     ...prev, 
@@ -130,8 +136,6 @@ export function BusPage() {
         } else if (name === "MinCapacity") {
             if (filters.MaxCapacity && value > filters.MaxCapacity) {
                 // min greater than max 
-                console.log("hello min")
-
                 setFiltersError((prev) => ({
                     ...prev,
                     MinCapacity: {
@@ -185,19 +189,19 @@ export function BusPage() {
             <Header
                 who={headerChoice.bus}
             />
-            <div className='p-4'>
+            <div className='p-5' style={{"marginTop" : "70px"}}>
                 {/* filter input */}
-                <form className='bg-sur-container p-4 rounded-top'>
+                <form className='bg-sur-container p-4 rounded-top '>
                     <legend className='text-primary cus-font'><b>BUS MANAGEMENT</b></legend>
                     <div className='row'>
                         {/* bus id - text */}
                         <div className='col'>
-                            <label class="col-form-label ps-1" for="BusId">Bus Id :</label>
+                            <label className="col-form-label ps-1" for="BusId">Bus Id :</label>
                             <input type="text" className="form-control fs-cus-1" placeholder="Filter By Bus Id" id="BusId" name="BusId" value={filters.BusId} onChange={handleChange} />
                         </div>
                         {/* capacity */}
                         <div className='col'>
-                            <label class="col-form-label ps-1" for="Capacity">Bus Capacity <span class="badge bg-warning">(Must greater than 0)</span> : </label>
+                            <label className="col-form-label ps-1" for="Capacity">Bus Capacity <span className="badge bg-warning">(Must greater than 0)</span> : </label>
                             <div className="d-flex">
                                 <input type="number" className={`form-control fs-cus-1 ${"is-valid" ? filtersError.MinCapacity.e : ""}`}  placeholder="Minimum Capacity" id="MinCapacity" name='MinCapacity' min={0} value={filters.MinCapacity} onChange={handleChange} onKeyDown={(e) => {
                                     if (e.key === "-") {
@@ -221,32 +225,40 @@ export function BusPage() {
                     <div className='row'>
                         {/* carplate - text */}
                         <div className='col'>
-                            <label class="col-form-label ps-1" for="CarPlateNo">Car Plate No. :</label>
-                            <input type="text" class="form-control fs-cus-1" placeholder="Filter By Car Plate No" id="CarPlateNo" name='CarPlateNo' value={filters.CarPlateNo} onChange={handleChange} />
+                            <label className="col-form-label ps-1" for="CarPlateNo">Car Plate No. :</label>
+                            <input type="text" className="form-control fs-cus-1" placeholder="Filter By Car Plate No" id="CarPlateNo" name='CarPlateNo' value={filters.CarPlateNo} onChange={handleChange} />
                         </div>
                         {/* is active - checklist */}
                         <div className='col'>
-                            <label for="IsActive" class="col-form-label ps-1">Bus Status :</label>
-                            <select class="form-select fs-cus-1" id="IsActive" name='IsActive' value={filters.IsActive} onChange={handleChange}>
-                                <option>-</option>
+                            <label for="IsActive" className="col-form-label ps-1">Bus Status :</label>
+                            <select className="form-select fs-cus-1" id="IsActive" name='IsActive' value={filters.IsActive} onChange={handleChange}>
+                                <option value={""}>-</option>
                                 <option value={0}>{active}</option>
                                 <option value={1}>{notactive}</option>
                             </select>
                         </div>
                     </div>
-                    <div className='row text-end d-flex justify-content-end mt-4'>
+                    <div className='row text-center text-md-end d-flex justify-content-center justify-content-md-end mt-4'>
                         <div className='w-50'>
                             <button type="button" className="btn btn-warning fs-cus-1 w-25 me-2 rounded-pill" onClick={clearFilter}>Clear</button>
                             <button type="button" className={`btn ${isDisabled ? "btn-grey" : "btn-info"} fs-cus-1 w-25 me-3 rounded-pill `} disabled={isDisabled} onClick={handleSubmit}>Filter</button>
                         </div>
                     </div>
                 </form>
+                {successMessage && (
+                    <>
+                        <SuccessMessage 
+                            message={successMessage}
+                        />
+                        {window.history.replaceState({}, '')} 
+                    </>
+                )}
                 {isLoading ? (
                     <Spinner />
                 ) : errors ? (
                     // show error message 
                     <ErrorMessage 
-                        err={errors}
+                        err={errors}    
                     />
                 ) : responses && responses.length > 0 ? (
                     // have data 
@@ -264,6 +276,9 @@ export function BusPage() {
                     />
                 )}
             </div>
+            <FloatingBtn 
+                link={staticRoutes.busCreate}
+            />
         </div>
         );
 }

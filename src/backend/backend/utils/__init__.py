@@ -1,4 +1,4 @@
 from .file import FileManage 
-from .setup import getDefaultDB, resetCollections, setup, getDBInfo
+from .setup import resetCollections, setup, mongo, Database
 
-__all__ = ["FileManage", "setup", "resetCollections", "getDefaultDB", "getDBInfo"]
+__all__ = ["FileManage", "setup", "resetCollections", "mongo", "Database"]

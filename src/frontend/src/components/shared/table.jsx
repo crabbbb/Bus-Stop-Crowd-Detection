@@ -1,4 +1,4 @@
-import { RedirectBtn } from "./redirect_btn";
+import { RedirectBtn } from "./redirectBtn";
 import { dynamicRoutes } from "../../routes/routes";
 
 export function Table({colName, dataName, rowData, where}) {

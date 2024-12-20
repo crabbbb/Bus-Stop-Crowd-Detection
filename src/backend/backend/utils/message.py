@@ -1,15 +1,19 @@
 # not_found
-NOT_FOUND = "No Record Found"
+NOT_FOUND = "No record found"
+PAGE_NOT_FOUND = "Requested page doesn't exist"
 
 # bad_request
-DUPLICATE_RECORD = "Duplicated Record Exist "
-NO_CHANGE_REQUIRED = "No Change Detected, The Data is Already The Same"
+DUPLICATE_RECORD = "Duplicated record exist "
+NO_CHANGE_REQUIRED = "No change was detected and the data required to be updated is the same as the original."
+
+# inconsistent data 
+INCONSISTENT_ID = "The ID is changed without authorization. The ID cannot be changed."
 
 # success
-DELETE_SUCCESS = "Data Delete Success"
-CREATE_SUCCESS = "Data Create Success"
-UPDATE_SUCCESS = "Data Update Success"
+DELETE_SUCCESS = "Data delete success"
+CREATE_SUCCESS = "Data create success"
+UPDATE_SUCCESS = "Data update success"
 
 # configuration 
-CONFIGURATION_ERROR = "System Configuration Problem, Unable to Connect Database. Probably Cause By Database URI Incomplete"
-DATABASE_CONNECTION_ERROR = "Unable to Connect Database, Please Try Again Later"
+CONFIGURATION_ERROR = "System configuration problem. Unable to connect database. Probably cause by Database URI incomplete"
+DATABASE_CONNECTION_ERROR = "Unable to connect database. Please try again later"

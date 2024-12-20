@@ -1,9 +1,9 @@
 import React from "react";
 import { Route } from "react-router-dom";
 import { staticRoutes, dynamicRoutes } from "../routes";
-import { BusPage } from "../../pages/bus_page";
-import { BusDetail } from "../../components/bus/bus_details";
-import { BusCreate } from "../../components/bus/bus_create";
+import { BusPage } from "../../pages/busPage";
+import { BusDetail } from "../../components/bus/busDetails";
+import { BusCreate } from "../../components/bus/busCreate";
 
 const BusRoutes = [
     <Route key="bus" path={staticRoutes.bus} element={<BusPage />} />,

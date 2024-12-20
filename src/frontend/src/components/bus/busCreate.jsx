@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header, headerChoice } from '../shared/header';
-import { CreateBtn } from '../shared/cud_btn';
-import BusRootes from '../../routes/api/rootes/bus_rootes';
+import BusRootes from '../../routes/api/rootes/busRootes';
 import { Spinner } from '../shared/spinner';
-import { ErrorMessage, SuccessMessage } from '../shared/display_message';
-import { BusForm } from './bus_form';
+import { ErrorMessage } from '../shared/displayMessage';
+import { BusForm } from './busForm';
+import { isCarPlateValid } from '../../util/isCarPlateValid';
 
 export function BusCreate() {
     const navigate = useNavigate();
@@ -27,7 +27,7 @@ export function BusCreate() {
                                         });
 
     // use to handle the error which using 500 + / 400 + response 
-    const [errors, setErrors] = useState(null);
+    const [errors, setErrors] = useState({});
     
     // spinner 
     const [isLoading, setIsLoading] = useState(false);
@@ -52,76 +52,15 @@ export function BusCreate() {
         if (name === "CarPlateNo") {
             newValue = value.toUpperCase()
 
-            if(value.length > 7) {
-                setFormErrors((prev) => ({
-                    ...prev,
-                    CarPlateNo: "Car Plate Number cannot exceed 7 character"
-                }));
-                setIsDisabled(true)
-            }
-
-            // get the carplate 
-            fetchCarPlateNo({"CarPlateNo" : value});
+            isCarPlateValid({setFormErrors, formErrors, setIsDisabled, setErrors, setCarplate, value});
         } else {
             newValue = value
         }
 
-        setForm((prevValues) => ({            
-            ...prevValues,
+        setForm((prev) => ({            
+            ...prev,
             [name]: newValue, 
         }));
-    }
-
-    const fetchCarPlateNo = async(cp = {}) => {
-        try {
-            // clear all possible distrubted state
-            setErrors(null);
-            setCarplate("");
-
-            const queryParams = new URLSearchParams(cp).toString();
-            const response = await BusRootes.getCarPlate(queryParams);
-
-            // get data and convert the format 
-            const carplateList = response.data || [];
-
-            // check data return 
-            if (carplateList.length > 0) {
-                // have similar carplate found 
-                setCarplate(carplateList.map(item => item.CarPlateNo).join(", "));
-
-                // check for exact match
-                if (carplateList.some(item => item.CarPlateNo === cp.CarPlateNo)) {
-                    // exact match found 
-                    setFormErrors((prev) => ({
-                        ...prev,
-                        CarPlateNo: "Car Plate Number already exists"
-                    }));
-
-                    setIsDisabled(true)
-                }
-            } else {
-                // no similar carplate found
-                setCarplate("");
-            }
-        } catch (err) {
-            // store err in error
-            if (err.response) {
-                setErrors((prev) => ({
-                    ...prev,
-                    responseErrors: `${err.response.statusText}`
-                }));
-            } else if (err.request) {
-                setErrors((prev) => ({
-                    ...prev,
-                    requestErrors: "No response from the server. Please try again later"
-                }));
-            } else {
-                setErrors((prev) => ({
-                    ...prev,
-                    unexpectedErrors: "An unexpected error occurred"
-                }));
-            }
-        } 
     }
 
     const handleSubmit = async(e) => {
@@ -180,7 +119,7 @@ export function BusCreate() {
             <div style={{"height" : "600px", "marginTop" : "100px"}}> 
                 {isLoading ? (
                     <Spinner />
-                ) : errors ? (
+                ) : Object.keys(errors).length > 0 ? (
                     <div className='ps-5 pe-5'>
                         <ErrorMessage err={errors} />
                     </div>

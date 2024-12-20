@@ -47,6 +47,9 @@ class SuperModel :
             raise ConnectionError(e)
     
     # bridge table request overwrite this 
+    # return None if file have problem 
+    # raise error if Connection Problem 
+    # empty list if dont have data 
     def getWithID(self, idData : str) : 
 
         try : 
@@ -57,7 +60,13 @@ class SuperModel :
                 return None 
             
             # get data with using id 
-            return list(collection.find({self.__idName : idData}))
+            result = list(collection.find({self.__idName : idData}))
+
+            if result : 
+                # have data 
+                return result[0]
+            
+            return result
         except ConnectionError as e : 
             raise ConnectionError(e)
         

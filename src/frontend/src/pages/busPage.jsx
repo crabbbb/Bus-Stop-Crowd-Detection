@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import BusRootes from '../routes/api/rootes/bus_rootes';
+import BusRootes from '../routes/api/rootes/busRootes';
 import { Table } from '../components/shared/table';
 import { Spinner } from '../components/shared/spinner';
-import { ErrorMessage, InfoMessage, SuccessMessage } from '../components/shared/display_message';
+import { ErrorMessage, InfoMessage, SuccessMessage } from '../components/shared/displayMessage';
 import { Header, headerChoice } from '../components/shared/header';
-import { FloatingBtn } from '../components/shared/floating_btn';
+import { FloatingBtn } from '../components/shared/floatingBtn';
 import { staticRoutes } from '../routes/routes';
 import { Icontooltip } from '../components/shared/tooltips';
 

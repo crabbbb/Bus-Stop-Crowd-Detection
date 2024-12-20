@@ -97,7 +97,7 @@ class BusListView(APIView) :
                 # if all success 
                 return Response({
                     "success" : f"{message.CREATE_SUCCESS}, ID : {data["BusId"]}",
-                    "redirect" : f"/bus?id={serializer.data.get('BusId')}"
+                    "redirect" : BusUtility.getDetailPage(serializer.data.get('BusId'))
                 }, status=status.HTTP_201_CREATED)
             else :
                 # data doesnot valid 
@@ -105,12 +105,140 @@ class BusListView(APIView) :
         except ConnectionError as e :
             return Response({"error" : message.DATABASE_CONNECTION_ERROR}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class BusDetailView(APIView) :
+
+    def get(self, request, id) : 
+        print("Get By ID Archieve")
+
+        try :
+            if id : 
+                # have data
+                bus = Bus()
+
+                # get the class 
+                result = bus.getWithID(id)
+
+                # check None
+                if result is None : 
+                    return Response({"error": message.CONFIGURATION_ERROR}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                # check empty 
+                if not result : 
+                    # 404 page not found 
+                    return Response({"error": message.PAGE_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+                
+                # have data 
+                serializer = BusSerializer(result)
+                print(serializer.data)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else : 
+                # dont have 
+                return Response({"error": message.PAGE_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+        except ConnectionError as e : 
+            return Response({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    # update 
+    def put(self, request, id) : 
+        print("Update function achieve")
+        print(id)
+        try : 
+            if id : 
+                bus = Bus()
+
+                # get the data 
+                result = bus.getWithID(id)
+
+                print("here")
+                
+                # ensure id will always be same 
+                if result["BusId"] == request.data["BusId"] : 
+
+                    # check None
+                    if result is None : 
+                        return Response({"error": message.CONFIGURATION_ERROR}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                    # check empty 
+                    if not result : 
+                        # 404 page not found 
+                        return Response({"error": message.PAGE_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+                    # have data 
+                    # do validation checking 
+                    serializer = BusSerializer(result, data=request.data)
+                    if serializer.is_valid() : 
+                        # check same 
+                        if serializer.data == serializer.validated_data : 
+                            # old same with new data, no update required 
+                            return Response(
+                                {
+                                    "success": f"{message.NO_CHANGE_REQUIRED}",
+                                    "redirect": BusUtility.getDetailPage(serializer.data.get('BusId'))
+                                },
+                                status=status.HTTP_200_OK
+                            )
+                        else : 
+                            # different 
+                            bus.updateOne(updatedData=serializer.validated_data)
+                            return Response(
+                                {
+                                    "success": f"{message.UPDATE_SUCCESS}, ID : {result["BusId"]}",
+                                    "redirect": BusUtility.getHomePage(result["BusId"])
+                                },
+                                status=status.HTTP_200_OK
+                            )
+                    else : 
+                        # invalid format return 
+                        return Response({"error" : serializer.errors}, status=status.HTTP_200_OK)
+                else : 
+                    # inconsistency data, raise error 
+                    return Response({"error": message.INCONSISTENT_ID}, status=status.HTTP_400_BAD_REQUEST)
+            else : 
+                # dont have 
+                return Response({"error": message.PAGE_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+        except ConnectionError as e : 
+            return Response({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def delete(self, request, id) : 
+        print("Delete function archieve")
+        try : 
+            if id : 
+                bus = Bus()
+
+                # get the data 
+                result = bus.getWithID(id)
+
+                # check None
+                if result is None : 
+                    return Response({"error": message.CONFIGURATION_ERROR}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                # check empty 
+                if not result : 
+                    # 404 page not found 
+                    return Response({"error": message.PAGE_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+                
+                # have data 
+                # perform delete 
+                bus.deleteOne(idData=id)
+                return Response(
+                    {
+                        "success": f"{message.DELETE_SUCCESS}, ID : {result["BusId"]}",
+                        "redirect": BusUtility.getHomePage(result["BusId"])
+                    }, 
+                    status=status.HTTP_200_OK
+                )
+            else : 
+                # dont have 
+                return Response({"error": message.PAGE_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+        except ConnectionError as e : 
+            return Response({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class BusUtility(APIView) :
 
     # get carplate 
     def get(self, request) : 
         # check data is none or not 
         carplate = request.query_params.get('CarPlateNo', None)
+
+        print("carplate", carplate)
         
         if not carplate :
             # send nothings 
@@ -137,4 +265,11 @@ class BusUtility(APIView) :
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ConnectionError as e: 
             return Response({"error" : message.DATABASE_CONNECTION_ERROR}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+    
+    @staticmethod
+    def getHomePage(id : str) :
+        return f"/bus?id={id}"
+    
+    @staticmethod
+    def getDetailPage(id : str) :
+        return f"/bus/detail/{id}"

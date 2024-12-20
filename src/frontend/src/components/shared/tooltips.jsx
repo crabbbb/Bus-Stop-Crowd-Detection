@@ -13,8 +13,8 @@ export function Icontooltip({icon, content}) {
     })
 
     return (
-        <button ref={tooltipRef} className="btn d-inline p-0 text-info-emphasis" style={{"font-size" : "12px"}}>
+        <div ref={tooltipRef} className="btn d-inline p-0 text-info-emphasis" style={{"fontsize" : "12px"}} >
             <i className={`"bi ${icon} text-secondary"`}></i>
-        </button>
+        </div>
     )
 }

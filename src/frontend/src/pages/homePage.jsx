@@ -1,7 +1,6 @@
 import React from "react";
-import { RedirectBtn } from "../components/shared/redirect_btn";
+import { RedirectBtn } from "../components/shared/redirectBtn";
 import { staticRoutes } from "../routes/routes";
-import { SuperAdminRedirect } from "../components/super_admin";
 import { Header, headerChoice } from "../components/shared/header";
 
 export function HomePage() {
@@ -25,7 +24,6 @@ export function HomePage() {
                             btnClass="btn btn-secondary m-4 w-50 h-75 cus-font"
                         />
                     </div>
-                    <SuperAdminRedirect />
                 </div>
             </div>
         </div>

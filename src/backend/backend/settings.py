@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-from backend.utils import getDBInfo
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # base = backend ( the first backend folder )
@@ -37,23 +36,23 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders', # CORS 
     'bus_schedule.apps.BusScheduleConfig',
+    'corsheaders',
     'rest_framework',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', # CORS 
+    'corsheaders.middleware.CorsMiddleware',    
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware', # handle CSRF
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'backend.middleware.checkDBConnection.CheckDBConnectionMiddleware'
 ]
 
-# for development purpose only 
 CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'backend.urls'
@@ -80,16 +79,9 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-uri, dbName = getDBInfo()
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'djongo',
-        'NAME': dbName,
-        'CLIENT': {
-            'host': uri,  # Full MongoDB URI
-        }
-    }
+
 }
 
 

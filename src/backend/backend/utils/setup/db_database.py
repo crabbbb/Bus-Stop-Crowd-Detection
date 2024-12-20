@@ -1,23 +1,31 @@
-from pymongo import MongoClient
 from pymongo.database import Database
 from backend.utils import FileManage
 import numpy as np
-from .db_connection import getDatabase
+from .db_connection import mongo
 import os
 from django.conf import settings 
 
 class Database :
+    __db = None 
 
-    def __init__(self, dbName):
+    def __init__(self, dbName = None):
         # getDatabase will bring help on create database 
-        self._db = getDatabase(dbName=dbName) 
+        try :
+            self.__db = mongo.getDB(dbName=dbName) 
+        except ConnectionError as e : 
+            self.__db = None
+
+    @classmethod
+    def isConnected(self) :
+        return True if self.__db is not None else False
     
     '''
     return list of connection names that store inside the db_config.yaml file  
     return : 
         
     ''' 
-    def _getPresetCollectionsName() : 
+    @staticmethod
+    def __getPresetCollectionsName() : 
         yamlFile = os.path.join(settings.BASE_DIR, "backend/config/db_config.yaml")
         # read yaml file 
         config = FileManage.readYAML(yamlFile)
@@ -30,16 +38,16 @@ class Database :
         True when is exist else False 
     ''' 
     def isCollectionExist(self, collection: str) -> bool: 
-        if collection in self._db.list_collection_names() : 
+        if collection in self.__db.list_collection_names() : 
             return True 
         return False 
 
     def isSameCollections(self, collections: str = None) -> bool: 
-        currentCollections = self._db.list_collection_names()
+        currentCollections = self.__db.list_collection_names()
 
         if not collections :
             # get the collections list from yaml file
-            collections = Database._getPresetCollectionsName()
+            collections = Database.__getPresetCollectionsName()
         
         if set(collections).issubset(set(currentCollections)) and len(currentCollections) == len(currentCollections) : 
             return True
@@ -47,21 +55,21 @@ class Database :
         return False
 
     def numOfCollections(self) -> np.int64:
-        return len(self._db.list_collection_names())
+        return len(self.__db.list_collection_names())
 
     def dropAllCollections(self) : 
-        for c in self._db.list_collection_names() : 
-            collection = self._db[c]
+        for c in self.__db.list_collection_names() : 
+            collection = self.__db[c]
             collection.drop()
             print(f"Drop Collection - {c} collections drop sucess")
-        return True if len(self._db.list_collection_names()) == 0 else False
+        return True if len(self.__db.list_collection_names()) == 0 else False
 
     def createCollection(self, name: str, data: list = None) -> bool: 
         try : 
             # create 
-            self._db.create_collection(name=name)
+            self.__db.create_collection(name=name)
             if data : 
-                collection = self._db[name]
+                collection = self.__db[name]
                 collection.insert_many(data)
             return True
         except Exception as e:
@@ -72,10 +80,10 @@ class Database :
     def resetDB(self, collections: str = None) -> np.int64: 
         if not collections : 
             # get the collections from yaml file 
-            collections = Database._getPresetCollectionsName()
+            collections = Database.__getPresetCollectionsName()
 
         # if collection exist will drop the collections 
-        if self._db :
+        if self.__db :
             if self.numOfCollections() > 0: 
                 # drop all collections and create again
                 self.dropAllCollections()
@@ -91,4 +99,13 @@ class Database :
                 unsuccessNo += 1
             print(f"Create Collection - {c} data added to MongoDB successfully")
         return unsuccessNo
+    
+    def getCollection(self, collectionName : str) :
+        # check exist 
+        if not self.isCollectionExist(collection=collectionName) :
+            return None 
+        
+        # collection exits in this database 
+        return self.__db[collectionName]
+
 

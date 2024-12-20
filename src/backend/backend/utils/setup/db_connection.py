@@ -6,131 +6,179 @@ import os
 import errno
 from django.conf import settings 
 from typing import Tuple, Dict
-from django.db import connection
 
+class MongoDB :
+    __client = None
+    __uri = None
+    __default_db = None
 
-'''
-do URL Encoding to prevent special character conflict with reserved syntax 
-param : 
-    password : user password
-return : 
-    encoded password 
-'''
-def _urlEncode(password: str) -> str : 
-    from urllib.parse import quote
-    return quote(password)
+    def __init__(self):
+        pass
 
-'''
-prepare database configuration by reading configuration detail from env and yaml
-return :
-    database configuaration in dictionary, None if file not exist
-'''
-def _loadDBConfig() -> dict :
-
-    # check db_config.yaml exist 
-    yamlFile = os.path.join(settings.BASE_DIR, "backend/config/db_config.yaml")
-    envFile = os.path.join(settings.BASE_DIR, "backend/config/.env")
-
-    if not os.path.exists(yamlFile) or not os.path.exists(envFile): 
-        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), yamlFile)
+    '''
+    do URL Encoding to prevent special character conflict with reserved syntax 
+    param : 
+        password : user password
+    return : 
+        encoded password 
+    '''
+    @classmethod
+    def __urlEncode(cls, password: str) -> str : 
+        from urllib.parse import quote
+        return quote(password)
     
-    # read .env file locally 
-    from decouple import Config, RepositoryEnv
+    '''
+    prepare database configuration by reading configuration detail from env and yaml
+    return :
+        database configuaration in dictionary, None if file not exist
+    '''
+    @classmethod
+    def __loadDBConfig(cls) -> dict :
 
-    # load env variable from .env file 
-    envConfig = Config(RepositoryEnv(envFile))
+        # check db_config.yaml exist 
+        yamlFile = os.path.join(settings.BASE_DIR, "backend/config/db_config.yaml")
+        envFile = os.path.join(settings.BASE_DIR, "backend/config/.env")
 
-    # read yaml file 
-    yaml_config = FileManage.readYAML(yamlFile)
+        if not os.path.exists(yamlFile) or not os.path.exists(envFile): 
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), yamlFile)
+        
+        # read .env file locally 
+        from decouple import Config, RepositoryEnv
 
-    # combine env and yaml become a complete config
-    # encode the url to prevent conflict special symbol
-    dbConfig = {
-        "uName": envConfig("DB_USER"),
-        "uPass": _urlEncode(envConfig("DB_PASSWORD")),
-        "host": yaml_config["database"]["host"],
-        "options": yaml_config["database"]["options"]
-    }
+        # load env variable from .env file 
+        envConfig = Config(RepositoryEnv(envFile))
 
-    return dbConfig
+        # read yaml file 
+        yaml_config = FileManage.readYAML(yamlFile)
 
-def getDBInfo() -> Tuple[Dict[str, str], str] : 
-    try : 
-        dbConfig = _loadDBConfig()
-    except FileNotFoundError as e :
-        # raise FileNotFoundError(e)
-        print(f"Configuration file for storing the database information not found > {e}")
+        # combine env and yaml become a complete config
+        # encode the url to prevent conflict special symbol
+        dbConfig = {
+            "uName": envConfig("DB_USER"),
+            "uPass": cls.__urlEncode(envConfig("DB_PASSWORD")),
+            "host": yaml_config["database"]["host"],
+            "options": yaml_config["database"]["options"]
+        }
 
-    uri = f"mongodb+srv://{dbConfig['uName']}:{dbConfig['uPass']}@{dbConfig['host']}/{dbConfig['options']}"
-
-    return uri, getDefaultDB()
-
-'''
-build connection with mongodb 
-error : 
-    ConnectionFailure - unable to connect mongodb 
-return : 
-    None if error occurs else will return MongoClient
-'''
-def _connectToMongoDB() :
-
-    uri, _ = getDBInfo()
-
-    try : 
-        # connect with mongodb 
-        client = MongoClient(uri, server_api=ServerApi('1'))
-
-        # send ping command to mongodb server to ensure the connection is active and reachable 
-        response = client.admin.command('ping')
-        print(f"MongoDB Connection Successful : {response}")
-        return client 
-    except ConnectionFailure as e : 
-        raise ConnectionFailure(f"Error No : {errno.ENOTCONN}. MongoDB Connection Unsuccessful : {e}")
-
-# singleton 
-_client = None
-
-# call connection
-def buildConnection() : 
-    global _client
-
-    if _client is None : 
-        # initialize the client 
-        from pymongo.errors import ConnectionFailure
+        return dbConfig
+    
+    @classmethod
+    def __getDefaultDB(cls) : 
+        cls.__default_db = FileManage.readYAML(os.path.join(settings.BASE_DIR, "backend/config/db_config.yaml"))["database"]["databaseName"]
+    
+    @classmethod
+    def setDefaultDB(cls, dbName: str) -> bool : 
+        cls.__default_db = dbName
+        return True
+    
+    @classmethod
+    def getDBName(cls) -> str : 
+        return cls.__default_db
+    
+    @classmethod
+    def getDBInfo(cls) -> Tuple[Dict[str, str], str] : 
         try : 
-            _client = _connectToMongoDB()
-        except ConnectionFailure as e : 
-            print(f"Connection Failure : {e}")
-            terminateConnection()
-        except FileNotFoundError as e : 
-            print(f"File Not Found Failure : {e}")
-            terminateConnection()
+            dbConfig = cls.__loadDBConfig()
+        except FileNotFoundError as e :
+            # raise FileNotFoundError(e)
+            print(f"Configuration file for storing the database information not found > {e}")
+            return None, None
 
-def terminateConnection() : 
-    global _client
+        uri = f"mongodb+srv://{dbConfig['uName']}:{dbConfig['uPass']}@{dbConfig['host']}/{dbConfig['options']}"
+
+        # no preset, use default 
+        if cls.getDBName() == None : 
+            # get default
+            cls.__getDefaultDB()
+
+        return uri, cls.getDBName()
+
+    '''
+    return : 
+        bool - true if connect success, false when file not exist 
+    error : 
+        connection error if the configuration inside the file is incorrect 
+    '''
+    @classmethod
+    def activate_client(cls) -> bool : 
+        
+        try :
+            if cls.__client is None : 
+                # client is not active 
+                if cls.__uri is None : 
+                    # uri not ready
+                    cls.__uri, cls.__default_db = cls.getDBInfo()
+
+                    if cls.__uri is None : 
+                        # if still None after getDBInfo means file not exist 
+                        return False
+
+                # activate client
+                cls.__client = MongoClient(cls.__uri, server_api=ServerApi('1'), serverSelectionTimeoutMS=5000)
+                # send ping command to mongodb server to ensure the connection is active and reachable 
+                response = cls.__client.admin.command('ping')
+                # print response 
+                print(f"MongoDB Connection Successful : {response}")
+
+            return True
+        except ConnectionError as e : 
+            # have file but configuration wrong or internet conection problem
+            raise ConnectionFailure(f"Error No : {errno.ENOTCONN}. MongoDB Connection Unsuccessful > {e}")
+        
+    @classmethod
+    def isActive(cls) : 
+        return True if cls.__client is not None else False
     
-    if _client : 
-        _client.close()
-        _client = None
+    @classmethod
+    def terminateConnection(cls) : 
+        if cls.__client : 
+            cls.__client.close()
+            cls.__client = None
+    
+    # check connection status 
+    @classmethod
+    def isHealthy(cls) :
+        try:
+            if not cls.isActive() :
+                # not connected 
+                return False
+            
+            response = cls.__client.admin.command('ping')
+            print(f"MongoDB still connected : {response}")
+            return True
+        except Exception:
+            return False
+    
+    @classmethod
+    def reconnect(cls) :
+        try : 
+            cls.terminateConnection()
+            if not cls.activate_client() : 
+                # configuration file problem 
+                return False
+        except ConnectionError as e : 
+            raise ConnectionError(e)
 
-def _getDjongoClient() -> MongoClient: 
-    from django.db import connection
 
-    try:
-        # get the djongo client for pymongo use 
-        client = connection.cursor().client
-        print("Successfully access Pymongo MongoClient")
-        return client
-    except Exception as e:
-        print(f"Error accessing MongoClient : {e}")
-        return None
+    @classmethod
+    def getDB(cls, dbName = None) :
+        try :
+            if dbName is not None : 
+                cls.setDefaultDB(dbName=dbName)
 
-# database 
+            if cls.__client == None :
+                # class not active 
+                if not cls.activate_client() : 
+                    # activate unsuccess with no error 
+                    # file not found = db info not inside the file 
+                    return None 
 
-def getDatabase(dbName: str) :
-    # if database exist will return database else will create a new one 
-    client = _getDjongoClient()
-    return client[dbName]
+            # client is activate / success activate 
+            # return db 
+            return cls.__client[cls.getDBName()]
+        except ConnectionError as e : 
+            raise ConnectionError(e)
 
-def getDefaultDB() -> str : 
-    return FileManage.readYAML(os.path.join(settings.BASE_DIR, "backend/config/db_config.yaml"))["database"]["databaseName"]
+
+# singleton instance 
+mongo = MongoDB()

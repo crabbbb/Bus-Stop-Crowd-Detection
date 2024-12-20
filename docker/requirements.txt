@@ -8,6 +8,7 @@ cmake
 matplotlib
 python-dotenv
 python-decouple
+PyYAML
 
 # jupyter notebook auto suggest 
 jupyterlab-lsp

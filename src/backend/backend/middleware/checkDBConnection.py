@@ -11,7 +11,6 @@ class CheckDBConnectionMiddleware:
             if not mongo.isHealthy():
                 # Attempt to reconnect if the connection is not healthy
                 result = mongo.reconnect()
-                print(result)
         except Exception as e:
             # If the database cannot reconnect, return an error response
             return JsonResponse({"error": "Database connection error", "details": str(e)}, status=500)

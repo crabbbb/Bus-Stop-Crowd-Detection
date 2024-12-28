@@ -117,6 +117,7 @@ class MongoDB :
                 cls.__client = MongoClient(cls.__uri, server_api=ServerApi('1'), serverSelectionTimeoutMS=5000)
                 # send ping command to mongodb server to ensure the connection is active and reachable 
                 response = cls.__client.admin.command('ping')
+
                 # print response 
                 print(f"MongoDB Connection Successful : {response}")
 

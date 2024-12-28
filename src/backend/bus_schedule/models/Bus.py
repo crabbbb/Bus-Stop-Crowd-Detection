@@ -1,4 +1,5 @@
 from .supermodel import SuperModel
+from bson import ObjectId
 
 class Bus(SuperModel) :
     __collection = "Bus"

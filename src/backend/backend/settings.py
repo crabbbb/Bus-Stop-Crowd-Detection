@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-p(=vvjm4y00l$2d-(dpjb2i^yh98b=^w6at4_as5a@p_6ktin$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 # Application definition
 
@@ -36,9 +36,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'bus_schedule.apps.BusScheduleConfig',
     'corsheaders',
     'rest_framework',
+    'channels',
+    'bus_schedule.apps.BusScheduleConfig',
+    
 ]
 
 MIDDLEWARE = [
@@ -50,8 +52,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'backend.middleware.checkDBConnection.CheckDBConnectionMiddleware'
+    'backend.middleware.checkDBConnection.CheckDBConnectionMiddleware',
 ]
+
+ASGI_APPLICATION = 'backend.asgi.application'
+WSGI_APPLICATION = 'backend.wsgi.application'
 
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -73,17 +78,12 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'backend.wsgi.application'
-
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 
 DATABASES = {
 
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

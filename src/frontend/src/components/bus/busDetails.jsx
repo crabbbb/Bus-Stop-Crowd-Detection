@@ -8,6 +8,8 @@ import { SuccessMessage, ErrorMessage } from "../shared/displayMessage";
 import { isCarPlateValid } from "../../util/isCarPlateValid";
 import { errorHandler, setFormErrorsHandler } from "../../util/errorHandler";
 import BusRootes from "../../routes/api/rootes/busRootes";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export function BusDetail() {
     // get the id from url 
@@ -25,6 +27,8 @@ export function BusDetail() {
     // use to handle the data to be display from backend to frontend, init value 
     const [responses, setResponses] = useState({});
 
+    const [objId, setObjId] = useState("");
+    
     // fdrm is for handle the change in the form 
     const [form, setForm] = useState({ 
                                         BusId: "",
@@ -47,7 +51,29 @@ export function BusDetail() {
 
     // create button disable 
     const [isDisabled, setIsDisabled] = useState(false);
-    
+
+    // for refresh use 
+    const [forceDisabled, setForceDisabled] = useState(false);
+
+
+    // Create refs to store the latest values
+    const responsesRef = React.useRef(responses);
+    const formRef = React.useRef(form);
+    const objIdRef = React.useRef(objId);
+
+    // Keep refs in sync with state
+    useEffect(() => {
+        responsesRef.current = responses;
+    }, [responses]);
+
+    useEffect(() => {
+        formRef.current = form;
+    }, [form]);
+
+    useEffect(() => {
+        objIdRef.current = objId;
+    }, [objId]);
+        
     // init 
     const fetchData = async() => {
         setIsLoading(true)
@@ -60,6 +86,10 @@ export function BusDetail() {
 
             // if dont have data will reach 404 
             // data insert to 
+            if(response.data._id) {
+                setObjId(response.data._id);
+            }
+
             setResponses(response.data);
             setForm(response.data);
         } catch (err) {
@@ -164,7 +194,40 @@ export function BusDetail() {
     useEffect(() => {
         // get data first 
         fetchData();
-    });
+    }, []);
+
+    useEffect(() => {
+        const eventSource = new EventSource("http://127.0.0.1:8000/busSchedule/busMonitor/");
+
+        eventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            const operationType = data.operationType;
+            let fullDocument = data.fullDocument;
+            
+            if (operationType === "delete") {
+                fullDocument = data.documentKey;
+            }
+
+            // compare the id pass in and the current id 
+            if (objIdRef.current === fullDocument._id) {    
+                // is same, do some action 
+                setForceDisabled(true);
+                // pop notification 
+                if (operationType === "delete") {
+                    toast.error("Bus Id " + formRef.current.BusId + " have been deleted !");
+                } else {
+                    toast.warning("Bus Id " + formRef.current.BusId + " record have been changed ! Please refresh to get the latest value");
+                }
+            }
+        };
+
+        eventSource.onerror = (error) => {
+            console.error("EventSource error:", error);
+            eventSource.close(); // Close the connection if there's an error
+        };
+
+        return () => eventSource.close();
+    }, []);
 
     return (
         <div>
@@ -199,10 +262,22 @@ export function BusDetail() {
                             handleSubmit={handleUpdate}
                             handleDelete={handleDelete}
                             isDisabled={isDisabled}
+                            forceDisaled={forceDisabled}
                         />
                     </div>
                 )}
             </div>
+            <ToastContainer 
+                position="top-right"
+                autoClose={5000} // 5 seconds
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
         </div>
     );
 }

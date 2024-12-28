@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { staticRoutes } from "../../routes/routes";
 
 // change can be use for update and create but handleDelete is only for delete 
-export function BusForm({isCreate, carplate = null, form, formErrors, handleSubmit, handleChange, handleDelete = null, isDisabled}) {
+export function BusForm({isCreate, carplate = null, form, formErrors, handleSubmit, handleChange, handleDelete = null, isDisabled, forceDisaled}) {
     const navigate = useNavigate();
 
     const handleBack = (e) => {
@@ -64,11 +64,11 @@ export function BusForm({isCreate, carplate = null, form, formErrors, handleSubm
                 ) : (
                     <div className='w-100 text-end mt-4'>
                         <UpdateBtn 
-                            isDisabled={isDisabled}
+                            isDisabled={forceDisaled ? true : isDisabled ? true : false}
                         />
                         &nbsp;&nbsp;&nbsp;
                         <DeleteBtn 
-                            isDisabled={isDisabled}
+                            isDisabled={forceDisaled ? true : isDisabled ? true : false}
                             handleDelete={handleDelete}
                         />
                     </div>

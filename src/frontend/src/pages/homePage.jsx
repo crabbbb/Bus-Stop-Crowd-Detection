@@ -2,6 +2,7 @@ import React from "react";
 import { RedirectBtn } from "../components/shared/redirectBtn";
 import { staticRoutes } from "../routes/routes";
 import { Header, headerChoice } from "../components/shared/header";
+import DatabaseUpdateStream from '../websocket/test';
 
 export function HomePage() {
     return (
@@ -26,6 +27,7 @@ export function HomePage() {
                     </div>
                 </div>
             </div>
+            <DatabaseUpdateStream />
         </div>
     )
 }

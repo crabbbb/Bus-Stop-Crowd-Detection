@@ -4,6 +4,7 @@ from rest_framework import status
 from ..models import Bus
 from ..serializer import BusSerializer
 from backend.utils import message
+from bson import ObjectId
 
 # no need id to create 
 class BusListView(APIView) : 
@@ -32,7 +33,7 @@ class BusListView(APIView) :
             filters.append({"IsActive": int(isActive)})
 
         query = {"$and": filters} if filters else {}
-        print(query)
+        
         # get data 
         try : 
             bus = Bus()
@@ -97,7 +98,7 @@ class BusListView(APIView) :
                 # if all success 
                 return Response({
                     "success" : f"{message.CREATE_SUCCESS}, ID : {data["BusId"]}",
-                    "redirect" : BusUtility.getDetailPage(serializer.data.get('BusId'))
+                    "redirect" : BusUtility.getHomePage(serializer.data.get('BusId'))
                 }, status=status.HTTP_201_CREATED)
             else :
                 # data doesnot valid 
@@ -140,15 +141,12 @@ class BusDetailView(APIView) :
     # update 
     def put(self, request, id) : 
         print("Update function achieve")
-        print(id)
         try : 
             if id : 
                 bus = Bus()
 
                 # get the data 
                 result = bus.getWithID(id)
-
-                print("here")
                 
                 # ensure id will always be same 
                 if result["BusId"] == request.data["BusId"] : 
@@ -163,11 +161,14 @@ class BusDetailView(APIView) :
                         return Response({"error": message.PAGE_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
                     # have data 
                     # do validation checking 
-                    serializer = BusSerializer(result, data=request.data)
+                    serializer = BusSerializer(data=request.data)
+
                     if serializer.is_valid() : 
                         # check same 
-                        if serializer.data == serializer.validated_data : 
+                        if result == serializer.validated_data : 
                             # old same with new data, no update required 
+                            print("here")
+                            
                             return Response(
                                 {
                                     "success": f"{message.NO_CHANGE_REQUIRED}",

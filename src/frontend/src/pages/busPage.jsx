@@ -8,6 +8,8 @@ import { Header, headerChoice } from '../components/shared/header';
 import { FloatingBtn } from '../components/shared/floatingBtn';
 import { staticRoutes } from '../routes/routes';
 import { Icontooltip } from '../components/shared/tooltips';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export function BusPage() {
     // receive message that pass from create, update and delete 
@@ -184,6 +186,27 @@ export function BusPage() {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        const eventSource = new EventSource("http://127.0.0.1:8000/busSchedule/busMonitor/");
+
+        eventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            const operationType = data.operationType;
+            let fullDocument = data.fullDocument;
+            if (operationType === "delete") {
+                fullDocument = data.documentKey;
+            }
+
+            toast.info("Bus record have changed ! Please refresh to get the latest value");
+        };
+
+        eventSource.onerror = (error) => {
+            console.error("EventSource error:", error);
+            eventSource.close(); // Close the connection if there's an error
+        };
+
+        return () => eventSource.close();
+    }, []);
 
     return (
         <div>
@@ -279,6 +302,17 @@ export function BusPage() {
             </div>
             <FloatingBtn 
                 link={staticRoutes.busCreate}
+            />
+            <ToastContainer 
+                position="top-right"
+                autoClose={5000} // 5 seconds
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
             />
         </div>
         );

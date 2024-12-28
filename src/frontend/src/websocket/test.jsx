@@ -52,9 +52,10 @@ const DatabaseUpdateStream = () => {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    const eventSource = new EventSource("http://127.0.0.1:8000/busSchedule/database-update-stream/");
+    const eventSource = new EventSource("http://127.0.0.1:8000/busSchedule/busMonitor/");
 
     eventSource.onmessage = (event) => {
+      console.log(event);
       setMessages((prevMessages) => [...prevMessages, event.data]);
     };
 

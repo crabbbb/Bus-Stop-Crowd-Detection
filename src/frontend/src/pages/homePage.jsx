@@ -15,7 +15,7 @@ export function HomePage() {
                     <h1 className="text-center">Welcome USER! &#128512;</h1>
                     <div className="d-flex justify-content-center align-items-center h-75">
                         <RedirectBtn
-                            redirectTo={staticRoutes.bus}
+                            redirectTo={staticRoutes.objectDetection}
                             btnContent="OBJECT DETECTION"
                             btnClass="btn btn-secondary m-4 w-50 h-75 cus-font"
                         />

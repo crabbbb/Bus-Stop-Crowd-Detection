@@ -5,8 +5,8 @@ const staticRoutes = {
     bus: "/bus",
     busCreate: "/bus/create",
     busDetail: "/bus/detail/:id", // static for router configuration
-    route : "/route",
-    superadmin: "http://127.0.0.1:8000/admin/",
+    route: "/route",
+    objectDetection: "/objectDetection", 
 };
 
 // dynamic required to pass in some value 

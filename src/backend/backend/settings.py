@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'channels',
     'bus_schedule.apps.BusScheduleConfig',
-    
+    'object_detection',
 ]
 
 MIDDLEWARE = [

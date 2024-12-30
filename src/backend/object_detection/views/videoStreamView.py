@@ -14,7 +14,7 @@ from supervision import Position
 # VIDEO_PATH = r"C:/Users/LENOVO/OneDrive/Documents/GitHub/Bus-Stop-Crowd-Detection/data/raw/videos/cctv/LeaveNGoInBus1.mp4"
 VIDEO_PATH = r"C:/Users/LENOVO/OneDrive/Documents/GitHub/Bus-Stop-Crowd-Detection/data/raw/videos/cctv/B.mp4"
 MODEL_PATH = r"object_detection/model/yolov8l.pt"
-LEG_DETECTOR_PATH = r"../../results/weights/best.pt"
+LEG_DETECTOR_PATH = r"object_detection/model/legDetector.pt"
 REGION = {
     "5": 671,
     "4": 1761,
@@ -24,6 +24,7 @@ REGION = {
 TOLERANCE = 13
 
 model = YOLO(MODEL_PATH)
+legDetector = YOLO(LEG_DETECTOR_PATH)
 tracker = sv.ByteTrack()
 trackerPerson = sv.ByteTrack()
 colorAnnotator = sv.ColorAnnotator()
@@ -97,6 +98,12 @@ def isLeave(bbox) :
     # bbox[3] = bottom right corner 
     return bbox[2] >= REGION["4"]
 
+def cleanLineZone(station) : 
+    global lineZoneList
+    # clean the lineZone
+    lineZoneList[station]["lineZone"].in_count = 0
+    lineZoneList[station]["lineZone"].out_count = 0
+
 def getCropFrame(frame, bbox) : 
     cropLeft = bbox[0]
     cropRight = bbox[2]
@@ -160,8 +167,8 @@ def videoProcess(request):
                         busCentroid[busId]["centroid"] = currentLocation
                         busCentroid[busId]["numberMatch"] = 0
                         busCentroid[busId]["station"] = None
-                        busCentroid[busId]["lineZone"] = None
-                        busCentroid[busId]["noOfPassenger"] = -1
+                        busCentroid[busId]["passengerInBus"] = 0
+                        busCentroid[busId]["passengerLeaveBus"] = 0
                         updateBusStatus(busId, BusStatus.DETECTING)
                     else :  
                         # compare busCentroid, if same for 10 frame means stopping, else store the busCentroid and status = moving 
@@ -200,7 +207,6 @@ def videoProcess(request):
                                     class_id=passengerDetectionsLocal.class_id
                                 )
 
-                                # 5) Track people in the global frame
                                 passengerDetectionsGlobal = trackerPerson.update_with_detections(passengerDetectionsGlobal)
 
                                 # update the linezone counting by using the original frame 
@@ -209,7 +215,7 @@ def videoProcess(request):
 
                                 # # If >2 people come in => WAITING
                                 # if in the queue ppl .... 
-                                if lineZoneList[busCentroid[busId]["station"]]["lineZone"].in_count > 2:
+                                if lineZoneList[busCentroid[busId]["station"]]["lineZone"].in_count > 2 :
                                     updateBusStatus(busId, BusStatus.WAITING)
 
                                 # annonated - for person
@@ -254,7 +260,9 @@ def videoProcess(request):
                         # check the xyxy is outside already or not 
                         # if yes then clear the busCentroid
                         # remove the bus from centroid and get next bus schedule time 
-                        busCentroid.pop(busId, None)
+                        bus = busCentroid.pop(busId, None)
+                        if bus is not None :
+                            cleanLineZone(bus[busId]["station"])
 
                     frame = annotatedFrame
 
@@ -273,9 +281,10 @@ def videoProcess(request):
                     # red dot for centroid
                     cv2.circle(frame, (int(centerX), int(centerY)), 5, (0, 0, 255), -1)  
             else : 
-                # dont have bus 
-                print("nothings")
-            
+                # dont have bus - detect the number of person by leg detector  
+                # crop image , only want the leg 
+                xyxy = [0, 480, 1813, 798]
+                
 
             # ----------------------------------- start sending data to frontend ------------------------------------- #
             num_people = 5

@@ -20,10 +20,15 @@ def serializeBusCentroid(busCentroid):
         # Convert enum to string
         statusStr = str(info["status"])  # or info["status"].value
 
+        noOfPassenger = str(info["lineZone"].in_count if info["lineZone"] is not None else "-1")
+        noOfLeaveBus = str(info["lineZone"].out_count if info["lineZone"] is not None else "-1")
+
         output[bus_id] = {
             "centroid": centroidList,
             "numberMatch": info["numberMatch"],
             "station": info["station"],
-            "status": statusStr
+            "status": statusStr, 
+            "passengerInBus": noOfPassenger, 
+            "passengerLeaveBus": noOfLeaveBus
         }
     return output

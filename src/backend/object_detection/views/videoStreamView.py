@@ -21,9 +21,7 @@ REGION = {
 }
 
 # the tolerance window can be accept for the centroid different 
-TOLERANCE = 10 
-# for drawing the line , how far away from the bus 
-OFFSET = 20
+TOLERANCE = 13
 
 model = YOLO(MODEL_PATH)
 tracker = sv.ByteTrack()
@@ -31,9 +29,28 @@ trackerPerson = sv.ByteTrack()
 colorAnnotator = sv.ColorAnnotator()
 lineAnnotator = sv.LineZoneAnnotator(thickness=1, text_scale=0.5, text_thickness=1)
 
-# use to store the bus current location id : {centroid, numberMatch, station, status, linezone, noOfPassenger}
+lineZoneList = {
+    "4" : {
+        "lineZone" : sv.LineZone(
+            start = sv.Point(x=1557, y=797),
+            end = sv.Point(x=1557, y=526),
+            triggering_anchors=(Position.CENTER, Position.CENTER)
+        ),
+        "xyxy" : [1509, 526, 1808, 797], # top-left bottom-right for cropping region 
+    }, 
+    "5" : {
+        "lineZone" : sv.LineZone(
+            start = sv.Point(x=483, y=669),
+            end = sv.Point(x=483, y=434), 
+            triggering_anchors=(Position.CENTER, Position.CENTER)
+        ),
+        "xyxy" : [337, 432, 682, 672],
+    },
+}
+# use to store the bus current location id : {centroid, numberMatch, station, status}
 busCentroid = {} 
 avgLeg = []
+currentFrameIndex = 0
 
 class BusStatus(Enum):
     NO_DETECT = "No bus detected" # wont be used, if dont have bus then centroid will be empty 
@@ -80,24 +97,14 @@ def isLeave(bbox) :
     # bbox[3] = bottom right corner 
     return bbox[2] >= REGION["4"]
 
-def getCropFrame(frame, bbox, maxWidth, maxHeight, extraWidth=100):
-    """
-    Crop the region to the right of the bus bounding box, plus some margin.
-    Returns (croppedFrame, crop_left, crop_top).
-    This helps us get the local -> global offset for bounding boxes.
-    """
-    x1, y1, x2, y2 = map(int, bbox)
-    
-    # We'll assume we want to crop from x2 to x2+extraWidth
-    crop_left = x2
-    crop_right = min(x2 + extraWidth, maxWidth)
-    crop_top = max(y1, 0)
-    crop_bottom = min(y2, maxHeight)
+def getCropFrame(frame, bbox) : 
+    cropLeft = bbox[0]
+    cropRight = bbox[2]
+    cropTop = bbox[1]
+    cropBottom = bbox[3]
 
-    # In OpenCV, slicing is frame[y1:y2, x1:x2]
-    print("here")
-    croppedFrame = frame[crop_top:crop_bottom, crop_left:crop_right]
-    return croppedFrame, crop_left, crop_top
+    # crop 
+    return frame[cropTop:cropBottom, cropLeft:cropRight], cropLeft, cropTop
 
 def videoProcess(request):
     # check filepath exist 
@@ -106,6 +113,7 @@ def videoProcess(request):
         raise FileNotFoundError("Video doesnot exist")
 
     def generate():
+        global currentFrameIndex
         cap = cv2.VideoCapture(VIDEO_PATH)
         # simple safety check in case the video fails to open
         if not cap.isOpened():
@@ -113,11 +121,14 @@ def videoProcess(request):
             yield "data: \n\n"
             return
         
+        cap.set(cv2.CAP_PROP_POS_FRAMES, currentFrameIndex)
+
         while True:
             ret, frame = cap.read()
             if not ret:
                 # if reach the end of the video, we can loop from the start
                 cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                currentFrameIndex = 0
                 continue
             
             # detect human and bus
@@ -164,33 +175,21 @@ def videoProcess(request):
                             if busCentroid[busId]["numberMatch"] >= 10 : 
                                 # means stopping - by default set as waiting passenger leave 
                                 updateBusStatus(busId, BusStatus.LEAVE_BUS)
-
-                                frameHeight = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-                                frameWidth  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
                                 
-                                croppedFrame, crop_left, crop_top = getCropFrame(
-                                    frame=frame,
-                                    bbox=bbox,
-                                    maxWidth=frameWidth,
-                                    maxHeight=frameHeight,
-                                    extraWidth=120  # a bit more margin
-                                )
+                                croppedFrame, cropLeft, cropTop = getCropFrame(frame=frame, bbox=lineZoneList[busCentroid[busId]["station"]]["xyxy"])
 
-                                # 3) Run YOLO on the cropped region to detect people
-                                passengerResults = model(croppedFrame, classes=[0])  # 0 => person
+                                # detect person 
+                                passengerResults = model(croppedFrame, classes=[0])  
                                 passengerDetectionsLocal = sv.Detections.from_ultralytics(passengerResults[0])
 
-                                # 4) Convert local (cropped) bounding boxes -> global coords
-                                #    so we can pass them to the tracker and line zone in original frame space
-                                # passengerDetectionsLocal.xyxy => shape (n,4)
-                                # We create a new Detections with offset bounding boxes
+                                # create a new bounding box that match with the global frame size 
                                 offsetBoxes = []
                                 for box in passengerDetectionsLocal.xyxy:
                                     lx1, ly1, lx2, ly2 = box
-                                    gx1 = lx1 + crop_left
-                                    gy1 = ly1 + crop_top
-                                    gx2 = lx2 + crop_left
-                                    gy2 = ly2 + crop_top
+                                    gx1 = lx1 + cropLeft
+                                    gy1 = ly1 + cropTop
+                                    gx2 = lx2 + cropLeft
+                                    gy2 = ly2 + cropTop
                                     offsetBoxes.append([gx1, gy1, gx2, gy2])
 
                                 # Convert to NumPy array with shape (N,4) or (0,4)
@@ -199,75 +198,31 @@ def videoProcess(request):
                                     xyxy=offsetBoxes,
                                     confidence=passengerDetectionsLocal.confidence,
                                     class_id=passengerDetectionsLocal.class_id
-                                    # tracker_id can be assigned after tracking
                                 )
 
                                 # 5) Track people in the global frame
                                 passengerDetectionsGlobal = trackerPerson.update_with_detections(passengerDetectionsGlobal)
 
-                                # 6) Create lineZone if we don't have one
-                                if busCentroid[busId]["lineZone"] is None:
-                                    lineX = bbox[2] + OFFSET
-                                    startPt = sv.Point(x=lineX, y=bbox[1])
-                                    endPt   = sv.Point(x=lineX, y=bbox[3] + 100)
-                                    busCentroid[busId]["lineZone"] = sv.LineZone(
-                                        start=startPt,
-                                        end=endPt,
-                                        triggering_anchors=(Position.CENTER, Position.CENTER)
-                                    )
+                                # update the linezone counting by using the original frame 
+                                lineZoneList[busCentroid[busId]["station"]]["lineZone"].trigger(passengerDetectionsGlobal)
+                                print(f"Bus {busId} => People crossing line: in={lineZoneList[busCentroid[busId]["station"]]["lineZone"].in_count}, out={lineZoneList[busCentroid[busId]["station"]]["lineZone"].out_count}")
 
-                                # 7) Trigger line zone counting with the global bounding boxes
-                                goin, goout = busCentroid[busId]["lineZone"].trigger(passengerDetectionsGlobal)
-                                print(f"Bus {busId} => People crossing line: in={goin}, out={goout}")
-
-                                # If >2 people come in => WAITING
-                                if busCentroid[busId]["lineZone"].in_count > 2:
+                                # # If >2 people come in => WAITING
+                                # if in the queue ppl .... 
+                                if lineZoneList[busCentroid[busId]["station"]]["lineZone"].in_count > 2:
                                     updateBusStatus(busId, BusStatus.WAITING)
 
-                                # 8) Annotate the original frame with the passenger bounding boxes
+                                # annonated - for person
                                 annotatedFrame = colorAnnotator.annotate(
                                     scene=annotatedFrame.copy(),
                                     detections=passengerDetectionsGlobal
                                 )
 
-                                # Also annotate the line in the original coordinate space
+                                # for line 
                                 annotatedFrame = lineAnnotator.annotate(
                                     annotatedFrame.copy(),
-                                    line_counter=busCentroid[busId]["lineZone"]
+                                    line_counter=lineZoneList[busCentroid[busId]["station"]]["lineZone"]
                                 )
-
-                                # # draw a line for detect passenger 
-                                # lineX = bbox[2] + OFFSET
-
-                                # if busCentroid[busId]["lineZone"] is None : 
-                                #     start, end = sv.Point(x=lineX, y=bbox[1]), sv.Point(x=lineX, y=bbox[3] + 100)
-                                #     busCentroid[busId]["lineZone"] = sv.LineZone(
-                                #         start=start, 
-                                #         end=end,
-                                #         triggering_anchors=(Position.CENTER, Position.CENTER)
-                                #     )
-                                    
-                                # annotatedFrame = lineAnnotator.annotate(annotatedFrame.copy(), line_counter=busCentroid[busId]["lineZone"])
-                                # # detect passenger frame, bbox, maxWidth, maxHeight
-                                # croppedFrame = getCropFrame(frame=frame, bbox=bbox, maxWidth=int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), maxHeight=int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-                                
-                                # passengerResult = model(frame, classes=[0])
-
-                                # passengerDetections = sv.Detections.from_ultralytics(passengerResult[0])
-
-                                # passengerDetections = trackerPerson.update_with_detections(passengerDetections)
-                                # print(passengerDetections)
-
-                                # goin, goout = busCentroid[busId]["lineZone"].trigger(passengerDetections)
-
-                                # annotatedFrame = colorAnnotator.annotate(scene=annotatedFrame.copy(), detections=passengerDetections)
-
-                                # print(f"{goin} + {goout}")
-
-                                # # check in or out 
-                                # # if in have more than 2 person then means waiting 
-                                # if busCentroid[busId]["lineZone"].in_count > 2 : 
-                                #     updateBusStatus(busId, BusStatus.WAITING)
 
                             else : 
                                 # not reach 10 
@@ -331,7 +286,7 @@ def videoProcess(request):
             b64_frame = base64.b64encode(jpeg_frame.tobytes()).decode('utf-8')
 
             # serialize because cant pass int or numeric value 
-            sBusCentroid = serializeBusCentroid(busCentroid=busCentroid)
+            sBusCentroid = serializeBusCentroid(busCentroid=busCentroid, lineZoneList=lineZoneList)
 
             data = {
                 "frame": b64_frame,

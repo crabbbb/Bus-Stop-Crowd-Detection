@@ -90,7 +90,7 @@ class RouteListView(APIView) :
         except ConnectionError as e :
             return Response({"error" : message.DATABASE_CONNECTION_ERROR}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-class BusDetailView(APIView) :
+class RouteDetailView(APIView) :
 
     def get(self, request, id) : 
         print("Get By ID Archieve")

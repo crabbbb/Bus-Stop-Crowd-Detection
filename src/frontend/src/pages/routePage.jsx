@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import BusRootes from '../routes/api/rootes/busRootes';
+import RouteRootes from '../routes/api/rootes/routeRootes';
 import { Table } from '../components/shared/table';
 import { Spinner } from '../components/shared/spinner';
 import { ErrorMessage, InfoMessage, SuccessMessage } from '../components/shared/displayMessage';
@@ -9,90 +9,73 @@ import { FloatingBtn } from '../components/shared/floatingBtn';
 import { staticRoutes } from '../routes/routes';
 import { Icontooltip } from '../components/shared/tooltips';
 import { toast, ToastContainer } from "react-toastify";
+import { errorHandler } from '../util/errorHandler';
 import "react-toastify/dist/ReactToastify.css";
 
-export function BusPage() {
+export function RoutePage() {
     // receive message that pass from create, update and delete 
     const location = useLocation();
     let { successMessage } = location.state || {};
 
     // for table 
-    const colName = ["Bus Id", "Car Plate No", "Capacity", "Bus Status"];
-    const dataName = ["BusId", "CarPlateNo", "Capacity", "IsActive"]; 
-    const where = "bus";
+    const colName = ["Route Id", "Route Duration", "From Campus", "Status"];
+    const dataName = ["RouteId", "RouteDuration", "FromCampus", "IsActive"]; 
+    const where = "route";
 
-    // use to handle the data to be display 
-    const [responses, setResponses] = useState([]);
-    // use to handle the error send bac
-    // use to handle the data user fill in in filter 
-    const [filters, setFilters] = useState({ 
-                                        BusId: "", 
-                                        MinCapacity: "",
-                                        MaxCapacity: "", 
-                                        CarPlateNo: "", 
-                                        IsActive: "" 
-                                    });
+    // filter button disable 
+    const [isDisabled, setIsDisabled] = useState(true);
+
+    // constant value 
+    const active = "Active";
+    const notactive = "NotActive";
+
+    // spinner 
+    const [isLoading, setIsLoading] = useState(false);
     // use to handle the error send back from backend 
     const [errors, setErrors] = useState({
                                     requestErrors: "",
                                     responseErrors: "",
                                     unexpectedErrors: ""
                                 });
-
-    // spinner 
-    const [isLoading, setIsLoading] = useState(true);
-
-    // filter button disable 
-    const [isDisabled, setIsDisabled] = useState(true);
-
+    // use to handle the data to be display 
+    const [responses, setResponses] = useState([]);
+    // use to handle the error send bac
+    // use to handle the data user fill in in filter 
+    const [filters, setFilters] = useState({ 
+                                        RouteId: "", 
+                                        MinDuration: "",
+                                        MaxDuration: "", 
+                                        FromCampus: "", 
+                                        IsActive: "" 
+                                    });
+                                    
     const [filtersError, setFiltersError] = useState({ 
-                                                    MaxCapacity: {
-                                                        e: false, 
-                                                        message: "Maximum Capacity can't smaller than the Minimum Capacity"
-                                                    },
-                                                    MinCapacity: {
-                                                        e: false, 
-                                                        message: "Minimum Capacity can't greater than the Maximum Capacity"
-                                                    },
-                                                });
-
-    // constant value 
-    const active = "Active";
-    const notactive = "NotActive";
-    
+                                                MaxDuration: {
+                                                    e: false, 
+                                                    message: "Maximum Duration can't smaller than the Minimum Duration"
+                                                },
+                                                MinDuration: {
+                                                    e: false, 
+                                                    message: "Minimum Duration can't greater than the Maximum Duration"
+                                                },
+                                            });
     // create function for fetching data from backend 
     const fetchData = async (params = {}) => {
         try {
             // clear out all the previous data 
             setResponses(null);
             setIsLoading(true);
-            setIsDisabled(true);
             setErrors(null);
+            setIsDisabled(true);
 
             // send together with filter 
             const queryParams = new URLSearchParams(params).toString();
-            const response = await BusRootes.getBuss(queryParams);
+            const response = await RouteRootes.getRoutess(queryParams);
 
             // set response to responses
             setResponses(response.data);
         } catch (err) {
-            // store err in error
-            if (err.response) {
-                setErrors((prev) => ({
-                    ...prev,
-                    responseErrors: `${err.response.statusText}`
-                }));
-            } else if (err.request) {
-                setErrors((prev) => ({
-                    ...prev,
-                    requestErrors: "No response from the server. Please try again later"
-                }));
-            } else {
-                setErrors((prev) => ({
-                    ...prev,
-                    unexpectedErrors: "An unexpected error occurred"
-                }));
-            }
+            errorHandler({err, setErrors})
         } finally {
             // keep track spinner, when responses have success update change the state 
             setIsLoading(false)
@@ -107,26 +90,26 @@ export function BusPage() {
         
         // reset 
         setFiltersError((prev) => ({
-            MaxCapacity: {
-                ...prev.MaxCapacity, 
+            MaxDuration: {
+                ...prev.MaxDuration, 
                 e: false,
             }, 
-            MinCapacity: {
-                ...prev.MinCapacity,
+            MinDuration: {
+                ...prev.MinDuration,
                 e: false,
             },
         }));
 
         // check min max 
-        if (name === "MaxCapacity") {
+        if (name === "MaxDuration") {
             
-            if (filters.MinCapacity && value < filters.MinCapacity && value > 0) {
+            if (filters.MinDuration && value < filters.MinDuration && value > 0) {
                 // max smaller than min
                 // set the error message 
                 setFiltersError((prev) => ({
                     ...prev, 
-                    MaxCapacity: {
-                        ...prev.MaxCapacity,
+                    MaxDuration: {
+                        ...prev.MaxDuration,
                         e: true,
                     },
                 }));
@@ -136,13 +119,13 @@ export function BusPage() {
                 setIsDisabled(false)
             }
             
-        } else if (name === "MinCapacity") {
-            if (filters.MaxCapacity && value > filters.MaxCapacity) {
+        } else if (name === "MinDuration") {
+            if (filters.MaxDuration && value > filters.MaxDuration) {
                 // min greater than max 
                 setFiltersError((prev) => ({
                     ...prev,
-                    MinCapacity: {
-                        ...prev.MinCapacity,
+                    MinDuration: {
+                        ...prev.MinDuration,
                         e: true,
                     }
                 }))
@@ -153,16 +136,12 @@ export function BusPage() {
             } 
         }
         
-        // ignore other 
-        // prevValues = current state / the data that currently store inside the filter 
-        // [name]: value is current data 
-        // ...prevValues = the other data that not include the target name 
-        // ensure the data will be update but at the sametime wont remove the old value 
         setFilters((prevValues) => ({            
             ...prevValues,
             [name]: value, 
         }));
     };
+
 
     // filter btn
     const handleSubmit = () => {
@@ -171,10 +150,10 @@ export function BusPage() {
 
     const clearFilter = () => {
         setFilters(({
-            BusId: "",
-            MinCapacity: "",
-            MaxCapacity: "",
-            CarPlateNo: "",
+            RouteId: "",
+            MinDuration: "",
+            MaxDuration: "",
+            FromCampus: "",
             IsActive: ""
         }));
 
@@ -186,48 +165,26 @@ export function BusPage() {
         fetchData();
     }, []);
 
-    useEffect(() => {
-        const eventSource = new EventSource("http://127.0.0.1:8000/busSchedule/busMonitor/");
-
-        eventSource.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            const operationType = data.operationType;
-            let fullDocument = data.fullDocument;
-            if (operationType === "delete") {
-                fullDocument = data.documentKey;
-            }
-
-            toast.info("Bus record have changed ! Please refresh to get the latest value");
-        };
-
-        eventSource.onerror = (error) => {
-            console.error("EventSource error:", error);
-            eventSource.close(); // Close the connection if there's an error
-        };
-
-        return () => eventSource.close();
-    }, []);
-
     return (
         <div>
             <Header
-                who={headerChoice.bus}
+                who={headerChoice.route}
             />
             <div className='p-5' style={{"marginTop" : "70px"}}>
                 {/* filter input */}
                 <form className='bg-sur-container p-4 rounded-top '>
-                    <legend className='text-primary cus-font'><b>BUS MANAGEMENT</b></legend>
+                    <legend className='text-primary cus-font'><b>ROUTE MANAGEMENT</b></legend>
                     <div className='row'>
-                        {/* bus id - text */}
+                        {/* Route id - text */}
                         <div className='col'>
-                            <label className="col-form-label ps-1" for="BusId">Bus Id :</label>
-                            <input type="text" className="form-control fs-cus-1" placeholder="Filter By Bus Id" id="BusId" name="BusId" value={filters.BusId} onChange={handleChange} />
+                            <label className="col-form-label ps-1" for="RouteId">Route Id :</label>
+                            <input type="text" className="form-control fs-cus-1" placeholder="Filter By Route Id" id="RouteId" name="RouteId" value={filters.RouteId} onChange={handleChange} />
                         </div>
-                        {/* capacity */}
+                        {/* From Campus */}
                         <div className='col'>
-                            <label className="col-form-label ps-1" for="Capacity">Bus Capacity <Icontooltip icon={"bi-info-circle-fill"} content={"Capacity MUST BE greater than 0"}/> : </label>
+                            <label className="col-form-label ps-1" for="FormCampus">Route Duration Time <Icontooltip icon={"bi-info-circle-fill"} content={"Duration MUST BE greater than 0"}/> : </label>
                             <div className="d-flex">
-                                <input type="number" className={`form-control fs-cus-1 ${"is-valid" ? filtersError.MinCapacity.e : ""}`}  placeholder="Minimum Capacity" id="MinCapacity" name='MinCapacity' min={0} value={filters.MinCapacity} onChange={handleChange} onKeyDown={(e) => {
+                                <input type="number" className={`form-control fs-cus-1 ${"is-valid" ? filtersError.MinDuration.e : ""}`}  placeholder="Minimum Duration Time" id="MinDuration" name='MinDuration' min={0} value={filters.MinDuration} onChange={handleChange} onKeyDown={(e) => {
                                     if (e.key === "-" || e.key === ".") {
                                         // prevent user type negative value
                                         e.preventDefault();
@@ -235,7 +192,7 @@ export function BusPage() {
                                 }} />
                                 <span className="ms-1 me-1 align-bottom">-</span>
                                 {/* max */}
-                                <input type="number" className={`form-control fs-cus-1 ${"is-valid" ? filtersError.MaxCapacity.e : ""}`} placeholder="Maximum Capacity" id="MaxCapacity" name='MaxCapacity' min={0} value={filters.MaxCapacity} onChange={handleChange} onKeyDown={(e) => {
+                                <input type="number" className={`form-control fs-cus-1 ${"is-valid" ? filtersError.MaxDuration.e : ""}`} placeholder="Maximum Duration Time" id="MaxDuration" name='MaxDuration' min={0} value={filters.MaxDuration} onChange={handleChange} onKeyDown={(e) => {
                                     if (e.key === "-" || e.key === ".") {
                                         // prevent user type negative value
                                         e.preventDefault();
@@ -243,14 +200,18 @@ export function BusPage() {
                                 }} />
                             </div>
                             {/* error message for wrong capacity */}
-                            <div className={`fs-cus-1 p-1 text-danger ${ filtersError.MaxCapacity.e ? "" : filtersError.MinCapacity.e ? "" : "visually-hidden"}`}>{filtersError.MinCapacity.message}</div>
+                            <div className={`fs-cus-1 p-1 text-danger ${ filtersError.MaxDuration.e ? "" : filtersError.MinDuration.e ? "" : "visually-hidden"}`}>{filtersError.MinDuration.message}</div>
                         </div>
                     </div>
                     <div className='row'>
                         {/* carplate - text */}
                         <div className='col'>
-                            <label className="col-form-label ps-1" for="CarPlateNo">Car Plate No. :</label>
-                            <input type="text" className="form-control fs-cus-1" placeholder="Filter By Car Plate No" id="CarPlateNo" name='CarPlateNo' value={filters.CarPlateNo} onChange={handleChange} />
+                            <label className="col-form-label ps-1" for="FromCampus">From Campus <Icontooltip icon={"bi-info-circle-fill"} content={"First Station start at campus. Only routes marked From campus will carry passengers from the campus bus stop"}/> :</label>
+                            <select className="form-select fs-cus-1" id="FromCampus" name='FromCampus' value={filters.FromCampus} onChange={handleChange}>
+                                <option value={""}>-</option>
+                                <option value={0}>{"Yes"}</option>
+                                <option value={1}>{"No"}</option>
+                            </select>
                         </div>
                         {/* is active - checklist */}
                         <div className='col'>
@@ -301,7 +262,7 @@ export function BusPage() {
                 )}
             </div>
             <FloatingBtn 
-                link={staticRoutes.busCreate}
+                link={staticRoutes.routeCreate}
             />
             <ToastContainer 
                 position="top-right"

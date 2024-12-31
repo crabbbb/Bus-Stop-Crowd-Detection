@@ -41,7 +41,7 @@ export function BusForm({isCreate, carplate = null, form, formErrors, handleSubm
                 <div>
                     <label className="form-label ms-1" for="inputValid">Capacity :</label>
                     <input type="number" className={`form-control fs-cus-1 ${formErrors.Capacity ? "is-invalid" : ""}`}  placeholder="Eg, 10" id="Capacity" name='Capacity' min={0} value={form.Capacity} onChange={handleChange} onKeyDown={(e) => {
-                        if (e.key === "-") {
+                        if (e.key === "-" || e.key === ".") {
                             // prevent user type negative value
                             e.preventDefault();
                         }

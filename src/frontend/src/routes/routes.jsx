@@ -6,6 +6,8 @@ const staticRoutes = {
     busCreate: "/bus/create",
     busDetail: "/bus/detail/:id", // static for router configuration
     route: "/route",
+    routeCreate: "/route/create",
+    routeDetail: "/route/detail/:id",
     objectDetection: "/objectDetection", 
 };
 

@@ -7,6 +7,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // bootstrap javascript
 import { HomePage } from './pages/homePage';
 import { staticRoutes } from './routes/routes';
 import BusRoutes from './routes/app/busRouter';
+import RouteRoutes from './routes/app/routeRouter';
 import ObjectDetection from './routes/app/objectDetectionRouter';
 import React, { useState } from "react";
 import Select from "react-select";
@@ -62,18 +63,19 @@ const DynamicDropdowns = () => {
 
 function App() {
   return (
-    // <Router>
-    //   <Routes>
-    //     <Route path={staticRoutes.home} element={<HomePage />} />
-    //     {/* others */}
-    //     <Route path={staticRoutes.notfound} element={<NotFoundPage />} />
-    //     {/* bus */}
-    //     {BusRoutes}
-    //     {/* object detection */}
-    //     {ObjectDetection}
-    //   </Routes>
-    // </Router>
-    <DynamicDropdowns/>
+    <Router>
+      <Routes>
+        <Route path={staticRoutes.home} element={<HomePage />} />
+        {/* others */}
+        <Route path={staticRoutes.notfound} element={<NotFoundPage />} />
+        {/* bus */}
+        {BusRoutes}
+        {/* routes */}
+        {RouteRoutes}
+        {/* object detection */}
+        {ObjectDetection}
+      </Routes>
+    </Router>
   );
 }
 

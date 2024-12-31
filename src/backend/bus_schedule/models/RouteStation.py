@@ -4,22 +4,23 @@ from .BusStation import BusStation
 
 class RouteStation(SuperModel) :
     __collection = "RouteStation"
+    __idHead = ""
     
     def __init__(self):
         super().__init__(self.__collection, self.__idHead)
-        super().__idName = "RouteId"
+        self.__idName = "RouteId"
 
     # override the getByID function 
     def getWithID(self, idData : str) : 
         try : 
-            collection = super().__getCollection()
+            collection = super()._getCollection()
 
             # check collection exist 
             if collection is None : 
                 return None 
             
             # get data with using id 
-            result = list(collection.find({super().__idName : idData}))
+            result = list(collection.find({self.__idName : idData}))
 
             if result : 
                 # have data 
@@ -31,7 +32,7 @@ class RouteStation(SuperModel) :
         
     def createOne(self, data : dict) :
         try : 
-            collection = self.__getCollection()
+            collection = self._getCollection()
 
             # check collection exist 
             if collection is None : 
@@ -47,7 +48,6 @@ class RouteStation(SuperModel) :
             
             station = BusStation()
             s = station.getWithID(data["StationName"])
-
             if not s : 
                 raise ValueError("Invalid Station Name")
 

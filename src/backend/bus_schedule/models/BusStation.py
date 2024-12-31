@@ -5,8 +5,7 @@ class BusStation(SuperModel) :
     __idHead = "BS"
     
     def __init__(self):
-        super().__init__(self.__collection, self.__idHead)
-        super().__idName = "StationName"
+        super().__init__(self.__collection, self.__idHead, "StationName")
 
     def createOne(self, data : dict):
         try : 

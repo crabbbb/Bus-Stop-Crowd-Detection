@@ -9,8 +9,6 @@ from backend.utils import message
 class RouteListView(APIView) : 
     # get all 
     def get(self, request) :
-        print("Get Function active ")
-        print("Query Params:", request.query_params)
         # if have request filter it 
         rid = request.query_params.get("RouteId")
         minDuration = request.query_params.get("MinDuration")
@@ -60,8 +58,6 @@ class RouteListView(APIView) :
             return Response({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def post(self, request) : 
-        print("POST function activate")
-        print("Query Params:", request.query_params)
         try :
             # check validation of data by using serializer 
             serializer = RouteSerializer(data=request.data)
@@ -82,7 +78,8 @@ class RouteListView(APIView) :
                 # if all success 
                 return Response({
                     "success" : f"{message.CREATE_SUCCESS}, ID : {data["RouteId"]}",
-                    "redirect" : RouteUtility.getHomePage(data["RouteId"])
+                    "redirect" : RouteUtility.getHomePage(data["RouteId"]),
+                    "id" : data["RouteId"]
                 }, status=status.HTTP_201_CREATED)
             else :
                 # data doesnot valid 
@@ -93,7 +90,6 @@ class RouteListView(APIView) :
 class RouteDetailView(APIView) :
 
     def get(self, request, id) : 
-        print("Get By ID Archieve")
 
         try :
             if id : 
@@ -123,7 +119,6 @@ class RouteDetailView(APIView) :
     
     # update 
     def put(self, request, id) : 
-        print("Update function achieve")
         try : 
             if id : 
                 route = Route()
@@ -181,7 +176,6 @@ class RouteDetailView(APIView) :
             return Response({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def delete(self, request, id) : 
-        print("Delete function archieve")
         try : 
             if id : 
                 route = Route()

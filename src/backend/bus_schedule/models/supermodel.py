@@ -8,16 +8,19 @@ class SuperModel :
     __idHead = None # for create Id purpose
     __idName = None
 
-    def __init__(self, collectionName : str, idHead : str) :
+    def __init__(self, collectionName : str, idHead : str, idName = None) :
         self.__collectionName = collectionName
         self.__idHead = idHead
-        self.__idName = f"{self.__collectionName}Id"
+        if idName is None : 
+            self.__idName = f"{self.__collectionName}Id"
+        else : 
+            self.__idName = idName
 
     '''
     return collection instance 
     error - Connection error 
     '''
-    def __getCollection(self) : 
+    def _getCollection(self) : 
         try :
             if not mongo.isHealthy() :
                 # either no connect or connection down 
@@ -34,7 +37,7 @@ class SuperModel :
 
     def getAll(self) :
         try : 
-            collection = self.__getCollection()
+            collection = self._getCollection()
 
             # check collection exist 
             if collection is None : 
@@ -51,9 +54,9 @@ class SuperModel :
     # raise error if Connection Problem 
     # empty list if dont have data 
     def getWithID(self, idData : str) : 
-
+        print(f"idData > {self.__idName} || {idData}")
         try : 
-            collection = self.__getCollection()
+            collection = self._getCollection()
 
             # check collection exist 
             if collection is None : 
@@ -72,7 +75,7 @@ class SuperModel :
         
     def getByfilter(self, filterCondition : dict, options : dict = None) : 
         try : 
-            collection = self.__getCollection()
+            collection = self._getCollection()
 
             # check collection exist
             if collection is None : 
@@ -90,7 +93,7 @@ class SuperModel :
 
     def getAllSimilar(self, columnName : str, value : str, options : dict = None) :
         try : 
-            collection = self.__getCollection()
+            collection = self._getCollection()
 
             # check collection exist
             if collection is None : 
@@ -107,7 +110,7 @@ class SuperModel :
     def updateOne(self, updatedData : dict) :
 
         try : 
-            collection = self.__getCollection()
+            collection = self._getCollection()
 
             # check collection exist
             if collection is None : 
@@ -139,7 +142,7 @@ class SuperModel :
     def deleteOne(self, idData : str) : 
 
         try : 
-            collection = self.__getCollection()
+            collection = self._getCollection()
 
             # check collection exist
             if collection is None : 
@@ -155,7 +158,7 @@ class SuperModel :
     def sortById(self, order : np.int64) :
 
         try : 
-            collection = self.__getCollection()
+            collection = self._getCollection()
 
             # check collection exist
             if collection is None : 
@@ -204,7 +207,7 @@ class SuperModel :
 
     def createOne(self, data : dict) :
         try : 
-            collection = self.__getCollection()
+            collection = self._getCollection()
 
             # check collection exist 
             if collection is None : 

@@ -8,19 +8,18 @@ from backend.utils import message
 # if dont have then add in, if more than then delete 
 class RouteStationListView(APIView) : 
     def post(self, request) : 
-        print("POST function activate")
-        print("Query Params:", request.query_params)
-        print(request.data)
         try :
             # data passin format must be {RouteId : R001, StationList : {1 : "BusStop 4", 2 : "Wangsa Maju"}}
             # check the request.data format 
-            if request.data and "RouteId" in request.data and "StationList" in request.data and type(request.data["StationList"]) == dict :
+            if not (request.data and "RouteId" in request.data and "StationList" in request.data and type(request.data["StationList"]) == list) :
                 # if format wrong raise 400 + error - 400 bad request 
                 return Response({"error" : message.DATA_FORMAT}, status=status.HTTP_400_BAD_REQUEST)
             
             # sorting 
-            stationList = RouteStationUtility.sortDictionary(request.data["StationList"])
-            print(f"sorted > {stationList}")
+            # stationList = RouteStationUtility.sortDictionary(request.data["StationList"])
+            # print(f"sorted > {stationList}")
+            stationList = request.data["StationList"]
+
 
             # take value for compare 
             # if empty then no need to compare 
@@ -33,31 +32,38 @@ class RouteStationListView(APIView) :
             
             # old compare with new 
             deleteList = []
+            sameList = []
             if result : 
                 # result = old 
                 # request.data = stationList = new 
                 for r in result :
-                    if r["order"] in stationList : # eg. stationList[1] have 
-                        if r["station"] == stationList[r["order"]] : 
-                            # same order same location - no need delete 
-                            stationList.pop(r["order"])
+                    for s in stationList : 
+                        if s["StationName"] == r["StationName"] :
+                            if s["RouteOrder"] != r["RouteOrder"] :
+                                # diff order same location - need to delete  
+                                deleteList.append(r)
+                                break
+                            else : 
+                                # same order same station
+                                sameList.append({"StationName" : r["StationName"], "RouteOrder" : r["RouteOrder"]})
                         else : 
-                            # same order not same location 
+                            # diff station 
                             deleteList.append(r)
-                    else : 
-                        deleteList.append(r)
+                            break
             
             # perform delete 
             for d in deleteList : 
                 joinTable.deleteOne(d)
-            
+
             # add value 
             for s in stationList : 
-                data = {
-                    "RouteId" : request.data["RouteId"],
-                    "StationName" : s["StationName"],
-                    "RouteOrder" : s
-                }
+                cpy = {"StationName" : s["stationName"], "RouteOrder" : s["order"]}
+                if cpy not in sameList : 
+                    data = {
+                        "RouteId" : request.data["RouteId"],
+                        "StationName" : cpy["StationName"],
+                        "RouteOrder" : cpy["RouteOrder"]
+                    }
                 # use serializer 
                 serializer = RouteStationSerializer(data=data)
 
@@ -77,7 +83,6 @@ class RouteStationListView(APIView) :
 
 class RouteStationDetailView(APIView) :
     def get(self, request, id) : 
-        print("Get By ID Archieve")
 
         try :
             if id : 
@@ -106,7 +111,6 @@ class RouteStationDetailView(APIView) :
             return Response({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class RouteStationUtility(APIView) :
-
     @staticmethod
     def sortDictionary(oriDict) : 
         return {key: oriDict[key] for key in sorted(oriDict)}

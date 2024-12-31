@@ -74,7 +74,6 @@ export function DropdownWithInput({setOptions, options, stations, setStations}) 
             <div className="w-100 text-end p-0 m-0 mt-4">
                 {/* Add station button */}
                 <button onClick={handleAddStation} className="btn btn-success bg-primary text-light"> <i class="bi bi-plus-circle-fill"></i> Add Station</button>
-                {console.log(stations)}
             </div>
         </div>
     );

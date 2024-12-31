@@ -4,7 +4,6 @@ import { Header, headerChoice } from '../shared/header';
 import { Spinner } from '../shared/spinner';
 import { ErrorMessage } from '../shared/displayMessage';
 import { RouteForm } from './routeForm';
-import { errorHandler } from '../../util/errorHandler';
 import RouteRootes from '../../routes/api/rootes/routeRootes';
 import RouteStation from '../../routes/api/rootes/routeStation';
 
@@ -58,15 +57,12 @@ export function RouteCreate() {
         e.preventDefault();
         try {
             const response = await RouteRootes.createRoutes(form)
-            // console.log(response)
 
             if (response.status === 201) {
                 // create success 
                 const message = response.data.success;
                 const redirect = response.data.redirect;
                 const id = response.data.id
-
-                console.log(message)
 
                 // start the Station
                 try {

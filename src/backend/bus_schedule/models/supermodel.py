@@ -5,7 +5,7 @@ import numpy as np
 class SuperModel :
 
     __collectionName = None 
-    __idHead = None
+    __idHead = None # for create Id purpose
     __idName = None
 
     def __init__(self, collectionName : str, idHead : str) :

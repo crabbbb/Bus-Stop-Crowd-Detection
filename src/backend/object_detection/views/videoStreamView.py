@@ -17,6 +17,7 @@ VIDEO_PATH = r"C:/Users/LENOVO/OneDrive/Documents/GitHub/Bus-Stop-Crowd-Detectio
 MODEL_PATH = r"object_detection/model/yolov8l.pt"
 # LEG_DETECTOR_PATH = r"object_detection/model/legDetector.pt"
 LEG_DETECTOR_PATH = r"C:/Users/LENOVO/OneDrive/Documents/GitHub/Bus-Stop-Crowd-Detection/src/backend/object_detection/model/legDetector.pt"
+
 REGION = {
     "5": 671,
     "4": 1761,

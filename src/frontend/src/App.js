@@ -7,16 +7,11 @@ import { HomePage } from './pages/homePage';
 import { staticRoutes } from './routes/routes';
 import BusRoutes from './routes/app/busRouter';
 import RouteRoutes from './routes/app/routeRouter';
+import BusStationRouter from './routes/app/busStationRouter';
 import ObjectDetection from './routes/app/objectDetectionRouter';
 import React from "react";
-import RouteStation from './routes/api/rootes/routeStationRootes';
-import BusStation from './routes/api/rootes/stationRootes';
-import { useState, useEffect } from "react";
-import Select from "react-select";
 
 const NotFoundPage = () => <h1 className="center h-100 w-100 text-danger fw-bold">404 NOT FOUND!!</h1>
-
-
 
 function App() {
   return (
@@ -29,6 +24,8 @@ function App() {
         {BusRoutes}
         {/* routes */}
         {RouteRoutes}
+        {/* bus station */}
+        {BusStationRouter}
         {/* object detection */}
         {ObjectDetection}
       </Routes>

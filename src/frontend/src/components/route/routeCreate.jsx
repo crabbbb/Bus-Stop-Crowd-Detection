@@ -5,7 +5,7 @@ import { Spinner } from '../shared/spinner';
 import { ErrorMessage } from '../shared/displayMessage';
 import { RouteForm } from './routeForm';
 import RouteRootes from '../../routes/api/rootes/routeRootes';
-import RouteStation from '../../routes/api/rootes/routeStationRootes';
+import RouteStationRootes from '../../routes/api/rootes/routeStationRootes';
 import { errorHandler } from '../../util/errorHandler';
 
 export function RouteCreate() {
@@ -66,18 +66,14 @@ export function RouteCreate() {
                 const id = response.data.id
 
                 // start the Station
-                try {
-                    const createRouteStation = {
-                        RouteId : id,
-                        StationList : stations  
-                    }
-                    const secondResponse = await RouteStation.modifyRoutesStations(createRouteStation)
+                const createRouteStation = {
+                    RouteId : id,
+                    StationList : stations  
+                }
+                const secondResponse = await RouteStationRootes.modifyRoutesStations(createRouteStation)
 
-                    if (secondResponse.status === 201) {
-                        navigate(redirect, {state: {successMessage: message}});
-                    }
-                } catch (err) {
-                    errorHandler({err, setErrors})
+                if (secondResponse.status === 200) {
+                    navigate(redirect, {state: {successMessage: message}});
                 }
             }
 
@@ -100,7 +96,7 @@ export function RouteCreate() {
     return (
         <div>
             <Header 
-                who={headerChoice.bus}
+                who={headerChoice.route}
             />
             <div style={{"height" : "600px", "marginTop" : "100px"}}> 
                 {isLoading ? (

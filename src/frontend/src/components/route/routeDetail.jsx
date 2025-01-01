@@ -9,7 +9,7 @@ import RouteRootes from "../../routes/api/rootes/routeRootes";
 import { RouteForm } from "./routeForm";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import RouteStation from "../../routes/api/rootes/routeStationRootes";
+import RouteStationRootes from "../../routes/api/rootes/routeStationRootes";
 
 export function RouteDetail() {
     // get the id from url 
@@ -118,15 +118,19 @@ export function RouteDetail() {
 
             if (response.status === 200) {
                 // success update 
-                const createRouteStation = {
-                    RouteId : id,
-                    StationList : stations  
-                }
-                const sencondResponse = await RouteStation.modifyRoutesStations(createRouteStation)
+                try {
+                    const createRouteStation = {
+                        RouteId : id,
+                        StationList : stations  
+                    }
+                    const sencondResponse = await RouteStationRootes.modifyRoutesStations(createRouteStation)
 
-                if (sencondResponse.status === 200) {
-                    
-                    navigateIfSuccess({response});
+                    if (sencondResponse.status === 200) {
+                        
+                        navigateIfSuccess({response});
+                    }
+                } catch (err) {
+                    errorHandler({err, setErrors})
                 }
                 // no change will be redirect back to this page and display success message 
             } else if (response && response.error !== "") {
@@ -154,9 +158,20 @@ export function RouteDetail() {
             console.log(response)
 
             if (response.status === 200) {
-                // success update 
-                // no change will be redirect back to this page and display success message 
-                navigateIfSuccess({response});
+                try {
+                    const createRouteStation = {
+                        RouteId : id,
+                        StationList : []
+                    }
+                    const sencondResponse = await RouteStationRootes.modifyRoutesStations(createRouteStation)
+
+                    if (sencondResponse.status === 200) {
+                        
+                        navigateIfSuccess({response});
+                    }
+                } catch (err) {
+                    errorHandler({err, setErrors})
+                }
             } 
         } catch (err) {
             errorHandler({err, setErrors})

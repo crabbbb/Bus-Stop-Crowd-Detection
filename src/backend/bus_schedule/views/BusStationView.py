@@ -8,18 +8,17 @@ from backend.utils import message
 class BusStationListView(APIView) : 
     # get all 
     def get(self, request) :
-        print("Get Function active ")
-        print("Query Params:", request.query_params)
+        print(request.query_params)
         # if have request filter it 
-        sid = request.query_params.get("StationName")
-        isActive = request.query_params.get("IsActive")
+        stationId = request.query_params.get("StationId")
+        stationName = request.query_params.get("StationName")
 
         filters = []
 
-        if sid:
-            filters.append({"BusId": {"$regex": sid, "$options": "i"}})
-        if isActive:
-            filters.append({"IsActive": int(isActive)})
+        if stationId:
+            filters.append({"StationId": {"$regex": stationId, "$options": "i"}})
+        if stationName:
+            filters.append({"StationName": {"$regex": stationName, "$options": "i"}})
 
         query = {"$and": filters} if filters else {}
         
@@ -50,9 +49,6 @@ class BusStationListView(APIView) :
             return Response({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def post(self, request) : 
-        print("POST function activate")
-        print("Query Params:", request.query_params)
-        print(request.data)
         try :
             # check validation of data by using serializer 
             serializer = BusStationSerializer(data=request.data)
@@ -79,8 +75,8 @@ class BusStationListView(APIView) :
                 
                 # if all success 
                 return Response({
-                    "success" : f"{message.CREATE_SUCCESS}, ID : {data["StationName"]}",
-                    "redirect" : BusStationUtility.getHomePage(serializer.data.get("StationName"))
+                    "success" : f"{message.CREATE_SUCCESS}, ID : {data["StationId"]}",
+                    "redirect" : BusStationUtility.getHomePage(serializer.data.get("StationId"))
                 }, status=status.HTTP_201_CREATED)
             else :
                 # data doesnot valid 
@@ -88,10 +84,38 @@ class BusStationListView(APIView) :
         except ConnectionError as e :
             return Response({"error" : message.DATABASE_CONNECTION_ERROR}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-class BusStationDetailView(APIView) :    
+class BusStationDetailView(APIView) :  
+    def get(self, request, id) : 
+        try :
+            if id : 
+                # have data
+                bus = BusStation()
+
+                # get the class 
+                result = bus.getWithID(id)
+
+                # check None
+                if result is None : 
+                    return Response({"error": message.CONFIGURATION_ERROR}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                # check empty 
+                if not result : 
+                    # 404 page not found 
+                    return Response({"error": message.PAGE_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+                
+                # have data 
+                serializer = BusStationSerializer(result)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else : 
+                # dont have 
+                return Response({"error": message.PAGE_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+        except ConnectionError as e : 
+            return Response({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     # update (activate or deactivate)
     def put(self, request, id) : 
         print("Update function achieve")
+        print(request.data)
         try : 
             if id : 
                 station = BusStation()
@@ -109,18 +133,20 @@ class BusStationDetailView(APIView) :
                     return Response({"error": message.PAGE_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
                 
                 # have data 
-                # change true to false or false to true
-                result["IsActive"] = 0  if result["IsActive"] == 1 else 0
-                serializer = BusStationSerializer(data=result)
-                result = station.updateOne(updatedData=serializer.validated_data)
+                serializer = BusStationSerializer(data=request.data)
 
-                return Response(
-                    {
-                        "success": f"{message.UPDATE_SUCCESS}, ID : {result["StationName"]}",
-                        "redirect": BusStationUtility.getHomePage(result["StationName"])
-                    },
-                    status=status.HTTP_200_OK
-                )
+                if serializer.is_valid() :
+                    result = station.updateOne(updatedData=serializer.validated_data)
+
+                    return Response(
+                        {
+                            "success": f"{message.UPDATE_SUCCESS}, ID : {result["StationId"]}",
+                            "redirect": BusStationUtility.getHomePage(result["StationId"])
+                        },
+                        status=status.HTTP_200_OK
+                    )
+                else : 
+                    return Response({"error" : serializer.errors}, status=status.HTTP_200_OK)
             else : 
                 # dont have 
                 return Response({"error": message.PAGE_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
@@ -162,10 +188,38 @@ class BusStationDetailView(APIView) :
             return Response({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class BusStationUtility(APIView) :
-    
+    # get stationName 
+    def get(self, request) : 
+        # check data is none or not 
+        stationName = request.query_params.get('StationName', None)
+        
+        if not stationName :
+            # send nothings 
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        
+        # have somethings 
+        try : 
+            station = BusStation()
+
+            result = station.getAllSimilar("StationName", stationName, {"StationName": 1, "_id": 0})
+
+            if not result : 
+                # list is empty 
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            
+            # have data 
+            # convert to dict
+            result = [station for station in result]
+            # put into serilizer pass to frontend 
+            serializer = BusStationSerializer(result, many=True)
+            
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ConnectionError as e: 
+            return Response({"error" : message.DATABASE_CONNECTION_ERROR}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     @staticmethod
     def getHomePage(id : str) :
-        return f"/station?stationName={id}"
+        return f"/busStation?stationName={id}"
     
     @staticmethod
     def getDetailPage(id : str) :

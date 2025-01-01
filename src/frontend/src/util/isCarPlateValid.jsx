@@ -33,7 +33,7 @@ const fetchCarPlateNo = async(cp = {}, setErrors, setCarplate, setFormErrors, fo
             setCarplate(carplateList.map(item => item.CarPlateNo).join(", "));
 
             // ensure dont overwrite the error message 
-            if (formErrors.CarPlateNo !== "") { 
+            if (formErrors.CarPlateNo === "") { 
                 // check for exact match
                 if (carplateList.some(item => item.CarPlateNo === cp.CarPlateNo)) {
                     // exact match found 

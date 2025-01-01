@@ -8,6 +8,9 @@ const staticRoutes = {
     route: "/route",
     routeCreate: "/route/create",
     routeDetail: "/route/detail/:id",
+    busStation: "/busStation",
+    busStationCreate: "/busStation/create",
+    busStationDetail: "/busStation/detail/:id",
     objectDetection: "/objectDetection", 
 };
 

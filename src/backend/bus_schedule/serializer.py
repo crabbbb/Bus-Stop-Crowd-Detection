@@ -28,8 +28,8 @@ class BusSerializer(serializers.Serializer) :
     
 class BusStationSerializer(serializers.Serializer) : 
     _id = ObjectIdField(required=False)
+    StationId = serializers.CharField(allow_blank=True, required=False)
     StationName = serializers.CharField(allow_blank=True, required=False)
-    IsActive = serializers.IntegerField(required=False, min_value=0, max_value=1)
 
 class RouteSerializer(serializers.Serializer) : 
     _id = ObjectIdField(required=False)

@@ -23,6 +23,8 @@ export function Table({colName, dataName, rowData, where}) {
                             {dataName.map((name) => {
                                 if (name === "IsActive") {
                                     return (<td key={`${data[dataName[0]]}-${name}`}>{data["IsActive"] === 0 ? "✅" : "❌"}</td>)
+                                } else if (name === "FromCampus") {
+                                    return (<td key={`${data[dataName[0]]}-${name}`}>{data["FromCampus"] === 0 ? "✅" : "❌"}</td>)
                                 } else {
                                     return (<td key={`${data[dataName[0]]}-${name}`}>{data[name]}</td>)
                                 }

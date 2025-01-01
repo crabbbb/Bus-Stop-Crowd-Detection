@@ -2,7 +2,7 @@ import { CreateBtn, UpdateBtn, DeleteBtn } from "../shared/cudBtn";
 import { Icontooltip } from "../shared/tooltips";
 import { useNavigate } from "react-router-dom";
 import { staticRoutes } from "../../routes/routes";
-import { DropdownWithInput } from "../shared/dropdown";
+import { DropdownWithInput, DropdownWithInputValueReady } from "../shared/dropdown";
 
 // change can be use for update and create but handleDelete is only for delete 
 export function RouteForm({stations, setStations, setOptions, options, isCreate, form, formErrors, handleSubmit, handleChange, handleDelete = null, isDisabled, forceDisaled}) {
@@ -59,12 +59,23 @@ export function RouteForm({stations, setStations, setOptions, options, isCreate,
                 <br/>
                 <hr />
                 <h4><b>Add Stopping Station</b></h4>
-                <DropdownWithInput 
-                    setOptions={setOptions}
-                    options={options}
-                    setStations={setStations}
-                    stations={stations}
-                />
+                {isCreate ? (
+                    <DropdownWithInput 
+                        setOptions={setOptions}
+                        options={options}
+                        setStations={setStations}
+                        stations={stations}
+                    />
+                ) : (
+                    <DropdownWithInputValueReady 
+                        routeId={form.RouteId}
+                        setOptions={setOptions}
+                        options={options}
+                        setStations={setStations}
+                        stations={stations}
+                    />
+                )}
+                
                 {isCreate ? (
                     <div className='w-100 text-end mt-4'>
                         <CreateBtn 

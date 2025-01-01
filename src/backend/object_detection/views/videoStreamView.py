@@ -15,7 +15,8 @@ from queue import Queue
 # VIDEO_PATH = r"C:/Users/LENOVO/OneDrive/Documents/GitHub/Bus-Stop-Crowd-Detection/data/raw/videos/cctv/LeaveNGoInBus1.mp4"
 VIDEO_PATH = r"C:/Users/LENOVO/OneDrive/Documents/GitHub/Bus-Stop-Crowd-Detection/data/raw/videos/cctv/D.mp4"
 MODEL_PATH = r"object_detection/model/yolov8l.pt"
-LEG_DETECTOR_PATH = r"object_detection/model/legDetector.pt"
+# LEG_DETECTOR_PATH = r"object_detection/model/legDetector.pt"
+LEG_DETECTOR_PATH = r"C:/Users/LENOVO/OneDrive/Documents/GitHub/Bus-Stop-Crowd-Detection/src/backend/object_detection/model/legDetector.pt"
 REGION = {
     "5": 671,
     "4": 1761,

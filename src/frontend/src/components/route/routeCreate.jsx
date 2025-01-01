@@ -5,7 +5,8 @@ import { Spinner } from '../shared/spinner';
 import { ErrorMessage } from '../shared/displayMessage';
 import { RouteForm } from './routeForm';
 import RouteRootes from '../../routes/api/rootes/routeRootes';
-import RouteStation from '../../routes/api/rootes/routeStation';
+import RouteStation from '../../routes/api/rootes/routeStationRootes';
+import { errorHandler } from '../../util/errorHandler';
 
 export function RouteCreate() {
     const navigate = useNavigate();
@@ -76,22 +77,7 @@ export function RouteCreate() {
                         navigate(redirect, {state: {successMessage: message}});
                     }
                 } catch (err) {
-                    if (err.response) {
-                        setErrors((prev) => ({
-                            ...prev,
-                            responseErrors: `${err.response.statusText}`
-                        }));
-                    } else if (err.request) {
-                        setErrors((prev) => ({
-                            ...prev,
-                            requestErrors: "No response from the server. Please try again later"
-                        }));
-                    } else {
-                        setErrors((prev) => ({
-                            ...prev,
-                            unexpectedErrors: "An unexpected error occurred"
-                        }));
-                    }
+                    errorHandler({err, setErrors})
                 }
             }
 
@@ -107,22 +93,7 @@ export function RouteCreate() {
                 })
             }
         } catch (err) {
-            if (err.response) {
-                setErrors((prev) => ({
-                    ...prev,
-                    responseErrors: `${err.response.statusText}`
-                }));
-            } else if (err.request) {
-                setErrors((prev) => ({
-                    ...prev,
-                    requestErrors: "No response from the server. Please try again later"
-                }));
-            } else {
-                setErrors((prev) => ({
-                    ...prev,
-                    unexpectedErrors: "An unexpected error occurred"
-                }));
-            }
+            errorHandler({err, setErrors})
         }
     }
     

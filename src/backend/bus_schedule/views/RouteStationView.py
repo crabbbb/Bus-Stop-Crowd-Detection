@@ -7,85 +7,116 @@ from backend.utils import message
 
 # if dont have then add in, if more than then delete 
 class RouteStationListView(APIView) : 
-    def post(self, request) : 
-        try :
-            # data passin format must be {RouteId : R001, StationList : {1 : "BusStop 4", 2 : "Wangsa Maju"}}
-            # check the request.data format 
-            if not (request.data and "RouteId" in request.data and "StationList" in request.data and type(request.data["StationList"]) == list) :
-                # if format wrong raise 400 + error - 400 bad request 
-                return Response({"error" : message.DATA_FORMAT}, status=status.HTTP_400_BAD_REQUEST)
-            
-            # sorting 
-            # stationList = RouteStationUtility.sortDictionary(request.data["StationList"])
-            # print(f"sorted > {stationList}")
+    def post(self, request):
+        try:
+            # data passing format must be: 
+            # {
+            #   "RouteId": "R001", 
+            #   "StationList": [
+            #       {"stationName": "BusStop 4", "order": 1}, 
+            #       {"stationName": "Wangsa Maju", "order": 2}
+            #   ]
+            # }
+
+            # Validate request structure
+            if not (
+                request.data 
+                and "RouteId" in request.data 
+                and "StationList" in request.data 
+                and isinstance(request.data["StationList"], list)
+            ):
+                # if format wrong -> 400 Bad Request
+                return Response({"error": message.DATA_FORMAT}, status=status.HTTP_400_BAD_REQUEST)
+
+            routeId = request.data["RouteId"]
             stationList = request.data["StationList"]
 
-
-            # take value for compare 
-            # if empty then no need to compare 
+            # Fetch old data (from DB) to compare
             joinTable = RouteStation()
-            # will return a empty list if dont have match else None or error  
-            result = joinTable.getWithID(idData=request.data["RouteId"])
-
-            if result is None : 
+            oldList = joinTable.getWithID(idData=routeId)
+            if oldList is None:
+                # None indicates some internal or config error in getWithID
                 return Response({"error": message.CONFIGURATION_ERROR}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
-            # old compare with new 
+
+            # Compare old vs new
             deleteList = []
-            sameList = []
-            if result : 
-                # result = old 
-                # request.data = stationList = new 
-                for r in result :
-                    for s in stationList : 
-                        if s["StationName"] == r["StationName"] :
-                            if s["RouteOrder"] != r["RouteOrder"] :
-                                # diff order same location - need to delete  
-                                deleteList.append(r)
-                                break
-                            else : 
-                                # same order same station
-                                sameList.append({"StationName" : r["StationName"], "RouteOrder" : r["RouteOrder"]})
-                        else : 
-                            # diff station 
-                            deleteList.append(r)
-                            break
-            
-            # perform delete 
-            for d in deleteList : 
-                joinTable.deleteOne(d)
+            sameList = []  # (stationName, order) pairs that remain unchanged
 
-            # add value 
-            for s in stationList : 
-                cpy = {"StationName" : s["stationName"], "RouteOrder" : s["order"]}
-                if cpy not in sameList : 
+            # oldList example: [{"RouteId": "R001", "StationName": "MRT", "RouteOrder": 1}, ...]
+            # stationList example: [{"stationName": "BusStop 4", "order": 1}, ...]
+
+            # Identify which old records need deletion (or are the same)
+            for oldItem in oldList:
+                oldStationName = oldItem["StationName"]
+                oldOrder = oldItem["RouteOrder"]
+
+                # See if there's a new item with the same station name
+                newMatch = next(
+                    (n for n in stationList if n["stationName"] == oldStationName),
+                    None
+                )
+                if not newMatch:
+                    # old station not found in the new list -> delete
+                    deleteList.append(oldItem)
+                else:
+                    # found a new item with same station name -> check order
+                    if newMatch["order"] != oldOrder:
+                        # order changed -> delete old, will re-add new
+                        deleteList.append(oldItem)
+                    else:
+                        # same station name, same order -> no changes needed
+                        sameList.append({
+                            "StationName": oldStationName,
+                            "RouteOrder": oldOrder
+                        })
+
+            # Perform deletion
+            for d in deleteList:
+                joinTable.deleteOne(routeId, d["StationName"])
+
+            # Add new stations 
+            # only add if they are not in sameList (eg. truly new or changed order)
+            for s in stationList:
+                # Check if s is in sameList
+                # sameList stores {"StationName": <>, "RouteOrder": <>}
+                match = next(
+                    (x for x in sameList 
+                        if x["StationName"] == s["stationName"] 
+                        and x["RouteOrder"] == s["order"]), 
+                    None 
+                )
+                if not match:
+                    # not in same list -> means need to create a new record
                     data = {
-                        "RouteId" : request.data["RouteId"],
-                        "StationName" : cpy["StationName"],
-                        "RouteOrder" : cpy["RouteOrder"]
+                        "RouteId": routeId,
+                        "StationName": s["stationName"],
+                        "RouteOrder": s["order"]
                     }
-                # use serializer 
-                serializer = RouteStationSerializer(data=data)
-
-                if serializer.is_valid() : 
-                    joinTable.createOne(data=serializer.validated_data)
+                    serializer = RouteStationSerializer(data=data)
+                    if serializer.is_valid():
+                        joinTable.createOne(data=serializer.validated_data)
             
-            # final do compare , the just adding into database and the one pass in 
-            validate = joinTable.getWithID(idData=request.data["RouteId"])
-            if len(validate) == len(stationList) : 
-                return Response({
-                    "success" : len(stationList)
-                }, status=status.HTTP_201_CREATED)
-            else : 
-                return Response({"error": f"Unexpected error happen, unable to added all data into database. Expected number of record > {len(stationList)}, Actual number of record > {len(validate)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except ConnectionError as e :
-            return Response({"error" : message.DATABASE_CONNECTION_ERROR}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # Final check
+            validate = joinTable.getWithID(routeId)  # get updated records
+            if validate is None:
+                return Response({"error": "Unexpected error retrieving final data"},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            if len(validate) == len(stationList):
+                return Response({"success": len(stationList)}, 
+                                status=status.HTTP_200_OK)
+            else:
+                return Response({"error": f"Unexpected error: expected {len(stationList)} records, but found {len(validate)} in the DB"}, 
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        except ConnectionError:
+            return Response({"error": message.DATABASE_CONNECTION_ERROR}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class RouteStationDetailView(APIView) :
     def get(self, request, id) : 
-
         try :
             if id : 
+                print(id)
                 # have data
                 joinTable = RouteStation()
 
@@ -102,7 +133,7 @@ class RouteStationDetailView(APIView) :
                     return Response({"error": message.PAGE_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
                 
                 # have data 
-                serializer = RouteStationSerializer(result)
+                serializer = RouteStationSerializer(result, many=True)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else : 
                 # dont have 
@@ -114,3 +145,11 @@ class RouteStationUtility(APIView) :
     @staticmethod
     def sortDictionary(oriDict) : 
         return {key: oriDict[key] for key in sorted(oriDict)}
+    
+    @staticmethod
+    def getHomePage(id : str) :
+        return f"/route?RouteId={id}"
+    
+    @staticmethod
+    def getDetailPage(id : str) :
+        return f"/route/detail/{id}"

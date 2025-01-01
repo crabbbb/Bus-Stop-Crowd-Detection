@@ -59,3 +59,18 @@ class RouteStation(SuperModel) :
             raise ConnectionError(e)
         except ValueError as e :
             raise ValueError(e)
+    
+    def deleteOne(self, routeId, stationName):
+        try : 
+            collection = self._getCollection()
+
+            # check collection exist
+            if collection is None : 
+                return None
+
+            # return None if data doesnot exist 
+            result = collection.find_one_and_delete({"RouteId" : routeId, "StationName" : stationName})
+
+            return result 
+        except ConnectionError as e :
+            raise ConnectionError(e)

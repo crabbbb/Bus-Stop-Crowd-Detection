@@ -90,7 +90,9 @@ class RouteListView(APIView) :
 class RouteDetailView(APIView) :
 
     def get(self, request, id) : 
-
+        print("Get single")
+        print(id)
+        print(request.data)
         try :
             if id : 
                 # have data
@@ -122,7 +124,6 @@ class RouteDetailView(APIView) :
         try : 
             if id : 
                 route = Route()
-
                 # get the data 
                 result = route.getWithID(id)
                 
@@ -145,7 +146,6 @@ class RouteDetailView(APIView) :
                         # check same 
                         if result == serializer.validated_data : 
                             # old same with new data, no update required 
-                            
                             return Response(
                                 {
                                     "success": f"{message.NO_CHANGE_REQUIRED}",
@@ -212,7 +212,7 @@ class RouteUtility(APIView) :
     
     @staticmethod
     def getHomePage(id : str) :
-        return f"/route?id={id}"
+        return f"/route?RouteId={id}"
     
     @staticmethod
     def getDetailPage(id : str) :

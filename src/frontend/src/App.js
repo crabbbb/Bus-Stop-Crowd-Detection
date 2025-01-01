@@ -10,8 +10,9 @@ import RouteRoutes from './routes/app/routeRouter';
 import BusStationRouter from './routes/app/busStationRouter';
 import ObjectDetection from './routes/app/objectDetectionRouter';
 import React from "react";
+import AssignmentRouter from './routes/app/assignmentRouter';
 
-const NotFoundPage = () => <h1 className="center h-100 w-100 text-danger fw-bold">404 NOT FOUND!!</h1>
+const NotFoundPage = () => <h1 className="center h-100 w-100 text-danger fw-bold text-center">404 NOT FOUND!!</h1>
 
 function App() {
   return (
@@ -26,6 +27,8 @@ function App() {
         {RouteRoutes}
         {/* bus station */}
         {BusStationRouter}
+        {/* assignment */}
+        {AssignmentRouter}
         {/* object detection */}
         {ObjectDetection}
       </Routes>

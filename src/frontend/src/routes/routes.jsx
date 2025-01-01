@@ -11,6 +11,9 @@ const staticRoutes = {
     busStation: "/busStation",
     busStationCreate: "/busStation/create",
     busStationDetail: "/busStation/detail/:id",
+    assignment: "/assignment",
+    assignmentCreate: "/assignment/create",
+    assignmentDetail: "/assignment/detail/:id",
     objectDetection: "/objectDetection", 
 };
 

@@ -25,6 +25,7 @@ export function Header({who}) {
                         <a className={`dropdown-item nav-link ${who === headerChoice.bus ? active : ""}`} href={staticRoutes.bus}>{headerChoice.bus}</a>
                         <a className={`dropdown-item nav-link ${who === headerChoice.route ? active : ""}`} href={staticRoutes.route}>{headerChoice.route}</a>
                         <a className={`dropdown-item nav-link ${who === headerChoice.busStation ? active : ""}`} href={staticRoutes.busStation}>{headerChoice.busStation}</a>
+                        <a className={`dropdown-item nav-link ${who === headerChoice.assignment ? active : ""}`} href={staticRoutes.assignment}>{headerChoice.assignment}</a>
                     </div>
                 </li>
                 </ul>
@@ -40,6 +41,7 @@ export const headerChoice = {
     station : "Station",
     route : "Route",
     busStation : "Bus Station",
+    assignment : "Bus Assignment",
     objectDetection : "Object Detection"
 }
 

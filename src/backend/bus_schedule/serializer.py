@@ -43,3 +43,12 @@ class RouteStationSerializer(serializers.Serializer) :
     StationName = serializers.CharField(allow_blank=True, required=False)
     RouteId = serializers.CharField(allow_blank=True, required=False)
     RouteOrder = serializers.IntegerField(required=False, min_value=1)
+
+class AssignmentSerializer(serializers.Serializer) : 
+    _id = ObjectIdField(required=False)
+    AssignmentId = serializers.CharField(allow_blank=True, required=False)
+    Time = serializers.TimeField(format='%H:%M:%S', input_formats=['%H:%M:%S', '%I:%M %p'], required=False, allow_null=True)
+    # sun = 0, mon = 1, ..., sat = 6
+    DayOfWeek = serializers.IntegerField(required=False, min_value=0, max_value=6)
+    BusId = serializers.CharField(allow_blank=True, required=False)
+    RouteId = serializers.CharField(allow_blank=True, required=False)

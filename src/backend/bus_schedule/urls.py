@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import BusListView, BusDetailView, BusUtility, BusMonitor, RouteListView, RouteDetailView, RouteStationListView, RouteStationDetailView, BusStationListView, BusStationDetailView, BusStationUtility
+from .views import BusListView, BusDetailView, BusUtility, BusMonitor, RouteListView, RouteDetailView, RouteStationListView, RouteStationDetailView, BusStationListView, BusStationDetailView, BusStationUtility, AssignmentListView, RouteStationUtility, AssignmentDetailView
 
 urlpatterns = [
     path('bus/', BusListView.as_view(), name='busList'),  # Endpoint for listing/creating buses
@@ -9,8 +9,11 @@ urlpatterns = [
     path('route/<str:id>/', RouteDetailView.as_view(), name="routeDetail"),
     path('routeStation/', RouteStationListView.as_view(), name="routeStationList"),
     path('routeStation/<str:id>/', RouteStationDetailView.as_view(), name="routeStationDetail"),
+    path('routeWithStation/', RouteStationUtility.as_view(), name="routeWithStation"),
     path('busStation/', BusStationListView.as_view(), name="busStationList"), 
     path('busStation/<str:id>/', BusStationDetailView.as_view(), name="busStationDetail"), 
     path('stationName/', BusStationUtility.as_view(), name="busStation-utility"),
+    path('assignment/', AssignmentListView.as_view(), name="assignmentList"), 
+    path('assignment/<str:id>/', AssignmentDetailView.as_view(), name="assignmentDetail"), 
     path("busMonitor/", BusMonitor, name="busMonitor"),
 ]

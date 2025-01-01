@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import BusRootes from '../routes/api/rootes/busRootes';
 import { Table } from '../components/shared/table';
 import { Spinner } from '../components/shared/spinner';
 import { ErrorMessage, InfoMessage, SuccessMessage } from '../components/shared/displayMessage';
@@ -10,28 +9,32 @@ import { staticRoutes } from '../routes/routes';
 import { Icontooltip } from '../components/shared/tooltips';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import AssignmentRootes from '../routes/api/rootes/assignmentRootes';
+import { errorHandler } from '../util/errorHandler';
 
-export function BusPage() {
+export function AssignmentPage() {
     // receive message that pass from create, update and delete 
     const location = useLocation();
     let { successMessage } = location.state || {};
 
     // for table 
-    const colName = ["Bus Id", "Car Plate No", "Capacity", "Bus Status"];
-    const dataName = ["BusId", "CarPlateNo", "Capacity", "IsActive"]; 
-    const where = "bus";
+    const colName = ["Assignment Id", "Time", "Day Of Week", "Bus Id", "Route Id"];
+    const dataName = ["AssignmentId", "Time", "DayOfWeek", "BusId", "RouteId"]; 
+    const where = "assignment";
 
     // use to handle the data to be display 
     const [responses, setResponses] = useState([]);
     // use to handle the error send bac
     // use to handle the data user fill in in filter 
     const [filters, setFilters] = useState({ 
+                                        AssignmentId: "", 
+                                        MinTime: "",
+                                        MaxTime: "",
+                                        DayOfWeek: "", 
                                         BusId: "", 
-                                        MinCapacity: "",
-                                        MaxCapacity: "", 
-                                        CarPlateNo: "", 
-                                        IsActive: "" 
+                                        RouteId: "" 
                                     });
+                                    
     // use to handle the error send back from backend 
     const [errors, setErrors] = useState({
                                     requestErrors: "",
@@ -46,19 +49,15 @@ export function BusPage() {
     const [isDisabled, setIsDisabled] = useState(true);
 
     const [filtersError, setFiltersError] = useState({ 
-                                                    MaxCapacity: {
+                                                    MaxTime: {
                                                         e: false, 
-                                                        message: "Maximum Capacity can't smaller than the Minimum Capacity"
+                                                        message: "Maximum Time can't smaller than the Minimum Time"
                                                     },
-                                                    MinCapacity: {
+                                                    MinTime: {
                                                         e: false, 
-                                                        message: "Minimum Capacity can't greater than the Maximum Capacity"
+                                                        message: "Minimum Time can't greater than the Maximum Time"
                                                     },
                                                 });
-
-    // constant value 
-    const active = "Active";
-    const notactive = "NotActive";
     
     // create function for fetching data from backend 
     const fetchData = async (params = {}) => {
@@ -71,28 +70,12 @@ export function BusPage() {
 
             // send together with filter 
             const queryParams = new URLSearchParams(params).toString();
-            const response = await BusRootes.getBuss(queryParams);
+            const response = await AssignmentRootes.getAssignments(queryParams);
 
             // set response to responses
             setResponses(response.data);
         } catch (err) {
-            // store err in error
-            if (err.response) {
-                setErrors((prev) => ({
-                    ...prev,
-                    responseErrors: `${err.response.statusText}`
-                }));
-            } else if (err.request) {
-                setErrors((prev) => ({
-                    ...prev,
-                    requestErrors: "No response from the server. Please try again later"
-                }));
-            } else {
-                setErrors((prev) => ({
-                    ...prev,
-                    unexpectedErrors: "An unexpected error occurred"
-                }));
-            }
+            errorHandler({err, setErrors})
         } finally {
             // keep track spinner, when responses have success update change the state 
             setIsLoading(false)
@@ -107,57 +90,69 @@ export function BusPage() {
         
         // reset 
         setFiltersError((prev) => ({
-            MaxCapacity: {
-                ...prev.MaxCapacity, 
+            MaxTime: {
+                ...prev.MaxTime, 
                 e: false,
             }, 
-            MinCapacity: {
-                ...prev.MinCapacity,
+            MinTime: {
+                ...prev.MinTime,
                 e: false,
             },
         }));
 
-        // check min max 
-        if (name === "MaxCapacity") {
-            
-            if (filters.MinCapacity && value < filters.MinCapacity && value > 0) {
-                // max smaller than min
-                // set the error message 
+        if (name === "MaxTime") {
+            // Ensure value is a valid time
+            const maxTime = new Date(`1970-01-01T${value}:00`); // Convert value to Date object
+            const minTime = filters.MinTime ? new Date(`1970-01-01T${filters.MinTime}:00`) : null;
+        
+            if (minTime && maxTime < minTime) {
+                // MaxTime is smaller than MinTime
                 setFiltersError((prev) => ({
-                    ...prev, 
-                    MaxCapacity: {
-                        ...prev.MaxCapacity,
+                    ...prev,
+                    MaxTime: {
+                        ...prev.MaxTime,
                         e: true,
                     },
                 }));
                 setIsDisabled(true);
             } else {
-                // no error 
-                setIsDisabled(false)
-            }
-            
-        } else if (name === "MinCapacity") {
-            if (filters.MaxCapacity && value > filters.MaxCapacity) {
-                // min greater than max 
+                // No error
                 setFiltersError((prev) => ({
                     ...prev,
-                    MinCapacity: {
-                        ...prev.MinCapacity,
+                    MaxTime: {
+                        ...prev.MaxTime,
+                        e: false,
+                    },
+                }));
+                setIsDisabled(false);
+            }
+        } else if (name === "MinTime") {
+            const minTime = new Date(`1970-01-01T${value}:00`); 
+            const maxTime = filters.MaxTime ? new Date(`1970-01-01T${filters.MaxTime}:00`) : null;
+        
+            if (maxTime && minTime > maxTime) {
+                // MinTime is greater than MaxTime
+                setFiltersError((prev) => ({
+                    ...prev,
+                    MinTime: {
+                        ...prev.MinTime,
                         e: true,
-                    }
-                }))
+                    },
+                }));
                 setIsDisabled(true);
             } else {
-                // no error 
+                // No error
+                setFiltersError((prev) => ({
+                    ...prev,
+                    MinTime: {
+                        ...prev.MinTime,
+                        e: false,
+                    },
+                }));
                 setIsDisabled(false);
-            } 
+            }
         }
-        
-        // ignore other 
-        // prevValues = current state / the data that currently store inside the filter 
-        // [name]: value is current data 
-        // ...prevValues = the other data that not include the target name 
-        // ensure the data will be update but at the sametime wont remove the old value 
+
         setFilters((prevValues) => ({            
             ...prevValues,
             [name]: value, 
@@ -171,11 +166,12 @@ export function BusPage() {
 
     const clearFilter = () => {
         setFilters(({
-            BusId: "",
-            MinCapacity: "",
-            MaxCapacity: "",
-            CarPlateNo: "",
-            IsActive: ""
+            AssignmentId: "", 
+            MinTime: "",
+            MaxTime: "",
+            DayOfWeek: "", 
+            BusId: "", 
+            RouteId: "" 
         }));
 
         fetchData();
@@ -186,79 +182,53 @@ export function BusPage() {
         fetchData();
     }, []);
 
-    useEffect(() => {
-        const eventSource = new EventSource("http://127.0.0.1:8000/busSchedule/busMonitor/");
-
-        eventSource.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            const operationType = data.operationType;
-            let fullDocument = data.fullDocument;
-            if (operationType === "delete") {
-                fullDocument = data.documentKey;
-            }
-
-            toast.info("Bus record have changed ! Please refresh to get the latest value");
-        };
-
-        eventSource.onerror = (error) => {
-            console.error("EventSource error:", error);
-            eventSource.close(); // Close the connection if there's an error
-        };
-
-        return () => eventSource.close();
-    }, []);
-
     return (
         <div>
             <Header
-                who={headerChoice.bus}
+                who={headerChoice.assignment}
             />
             <div className='p-5' style={{"marginTop" : "70px"}}>
                 {/* filter input */}
                 <form className='bg-sur-container p-4 rounded-top '>
-                    <legend className='text-primary cus-font'><b>BUS MANAGEMENT</b></legend>
+                    <legend className='text-primary cus-font'><b>ASSIGNMENT MANAGEMENT</b></legend>
                     <div className='row'>
                         {/* bus id - text */}
                         <div className='col'>
-                            <label className="col-form-label ps-1" for="BusId">Bus Id :</label>
-                            <input type="text" className="form-control fs-cus-1" placeholder="Filter By Bus Id" id="BusId" name="BusId" value={filters.BusId} onChange={handleChange} />
+                            <label className="col-form-label ps-1" for="AssignmentId">Assignment Id :</label>
+                            <input type="text" className="form-control fs-cus-1" placeholder="Filter By Assignment Id" id="AssignmentId" name="AssignmentId" value={filters.AssignmentId} onChange={handleChange} />
                         </div>
-                        {/* capacity */}
+                        {/* time */}
                         <div className='col'>
-                            <label className="col-form-label ps-1" for="Capacity">Bus Capacity <Icontooltip icon={"bi-info-circle-fill"} content={"Capacity MUST BE greater than 0"}/> : </label>
+                            <label className="col-form-label ps-1" for="Time">Time : </label>
                             <div className="d-flex">
-                                <input type="number" className={`form-control fs-cus-1 ${filtersError.MinCapacity.e ? "is-invalid" : ""}`}  placeholder="Minimum Capacity" id="MinCapacity" name='MinCapacity' min={0} value={filters.MinCapacity} onChange={handleChange} onKeyDown={(e) => {
-                                    if (e.key === "-" || e.key === ".") {
-                                        // prevent user type negative value
-                                        e.preventDefault();
-                                    }
-                                }} />
+                                {/* min */}
+                                <input id="MinTime" name='MinTime' type="time" value={filters.MinTime} onChange={handleChange} className={`form-control fs-cus-1 ${filtersError.MinTime.e ? "is-invalid" : ""}`} />
                                 <span className="ms-1 me-1 align-bottom">-</span>
                                 {/* max */}
-                                <input type="number" className={`form-control fs-cus-1 ${filtersError.MaxCapacity.e ? "is-invalid"  : ""}`} placeholder="Maximum Capacity" id="MaxCapacity" name='MaxCapacity' min={0} value={filters.MaxCapacity} onChange={handleChange} onKeyDown={(e) => {
-                                    if (e.key === "-" || e.key === ".") {
-                                        // prevent user type negative value
-                                        e.preventDefault();
-                                    }
-                                }} />
+                                <input id="MaxTime" name='MaxTime' type="time" value={filters.MaxTime} onChange={handleChange} className={`form-control fs-cus-1 ${filtersError.MaxTime.e ? "is-invalid" : ""}`} />
                             </div>
                             {/* error message for wrong capacity */}
-                            <div className={`fs-cus-1 p-1 text-danger ${ filtersError.MaxCapacity.e ? "" : filtersError.MinCapacity.e ? "" : "visually-hidden"}`}>{filtersError.MinCapacity.message}</div>
+                            <div className={`fs-cus-1 p-1 text-danger ${ filtersError.MaxTime.e ? "" : filtersError.MinTime.e ? "" : "visually-hidden"}`}>{filtersError.MinTime.message}</div>
                         </div>
                     </div>
                     <div className='row'>
                         {/* carplate - text */}
                         <div className='col'>
-                            <label className="col-form-label ps-1" for="CarPlateNo">Car Plate No. :</label>
-                            <input type="text" className="form-control fs-cus-1" placeholder="Filter By Car Plate No" id="CarPlateNo" name='CarPlateNo' value={filters.CarPlateNo} onChange={handleChange} />
+                            <label className="col-form-label ps-1" for="BusId">Bus Id :</label>
+                            <input type="text" className="form-control fs-cus-1" placeholder="Filter By Bus Id" id="BusId" name='BusId' value={filters.BusId} onChange={handleChange} />
                         </div>
                         {/* is active - checklist */}
                         <div className='col'>
-                            <label for="IsActive" className="col-form-label ps-1">Bus Status :</label>
-                            <select className="form-select fs-cus-1" id="IsActive" name='IsActive' value={filters.IsActive} onChange={handleChange}>
+                            <label for="DayOfWeek" className="col-form-label ps-1">Day of Week :</label>
+                            <select className="form-select fs-cus-1" id="DayOfWeek" name='DayOfWeek' value={filters.DayOfWeek} onChange={handleChange}>
                                 <option value={""}>-</option>
-                                <option value={0}>{active}</option>
-                                <option value={1}>{notactive}</option>
+                                <option value={1}>MONDAY</option>
+                                <option value={2}>TUESDAY</option>
+                                <option value={3}>WEDNESDAY</option>
+                                <option value={4}>THURSDAY</option>
+                                <option value={5}>FRIDAY</option>
+                                <option value={6}>SATURDAY</option>
+                                <option value={0}>SUNDAY</option>
                             </select>
                         </div>
                     </div>
@@ -301,9 +271,9 @@ export function BusPage() {
                 )}
             </div>
             <FloatingBtn 
-                link={staticRoutes.busCreate}
+                link={staticRoutes.assignmentCreate}
             />
-            <ToastContainer 
+            {/* <ToastContainer 
                 position="top-right"
                 autoClose={5000} // 5 seconds
                 hideProgressBar={false}
@@ -313,7 +283,7 @@ export function BusPage() {
                 pauseOnFocusLoss
                 draggable
                 pauseOnHover
-            />
+            /> */}
         </div>
-        );
+    );
 }

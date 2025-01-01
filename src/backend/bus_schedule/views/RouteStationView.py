@@ -103,8 +103,7 @@ class RouteStationListView(APIView) :
                                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             if len(validate) == len(stationList):
-                return Response({"success": len(stationList)}, 
-                                status=status.HTTP_200_OK)
+                return Response({"success": len(stationList)}, status=status.HTTP_200_OK)
             else:
                 return Response({"error": f"Unexpected error: expected {len(stationList)} records, but found {len(validate)} in the DB"}, 
                                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -142,6 +141,60 @@ class RouteStationDetailView(APIView) :
             return Response({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class RouteStationUtility(APIView) :
+    def get(self, request) : 
+        try : 
+            route = Route()
+            joinTable = RouteStation()
+            station = BusStation()
+
+            routeResult = route.getAll()
+            if routeResult is None:
+                # Database problem
+                return Response({"error": "Failed to retrieve routes."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            if not routeResult:
+                # No routes in DB
+                return Response({"data": []}, status=status.HTTP_200_OK)
+
+            returnList = []
+
+            for r in routeResult: 
+                # get the join 
+                routeStationResult = joinTable.getWithID(r["RouteId"])
+                if routeStationResult is None:
+                    # Possibly DB connection issue
+                    continue
+                if not routeStationResult:
+                    # No route-stations for this route
+                    returnList.append({"RouteId": r["RouteId"], "StationOrder": ""})
+                    continue
+
+                # Sort by RouteOrder
+                sortedStation = sorted(routeStationResult, key=lambda x: x['RouteOrder'])
+                
+                stationOrder = ""
+                i = 0
+                for ss in sortedStation: 
+                    # If you actually need to fetch station name from BusStation:
+                    # s = station.getWithID(ss["StationId"])
+                    # stationName = s["StationName"] if s else "Unknown"
+                    stationName = ss["StationName"]  # if it's already there
+
+                    if i == 0:
+                        stationOrder += f"{stationName}"
+                    else:
+                        stationOrder += f" > {stationName}"
+                    i += 1
+
+                returnList.append({
+                    "RouteId": r["RouteId"],
+                    "StationOrder": stationOrder
+                })
+            return Response({"data": returnList}, status=status.HTTP_200_OK)
+
+        except ConnectionError as e: 
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
     @staticmethod
     def sortDictionary(oriDict) : 
         return {key: oriDict[key] for key in sorted(oriDict)}

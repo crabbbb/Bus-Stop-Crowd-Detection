@@ -227,16 +227,16 @@ export function BusPage() {
                         <div className='col'>
                             <label className="col-form-label ps-1" for="Capacity">Bus Capacity <Icontooltip icon={"bi-info-circle-fill"} content={"Capacity MUST BE greater than 0"}/> : </label>
                             <div className="d-flex">
-                                <input type="number" className={`form-control fs-cus-1 ${"is-valid" ? filtersError.MinCapacity.e : ""}`}  placeholder="Minimum Capacity" id="MinCapacity" name='MinCapacity' min={0} value={filters.MinCapacity} onChange={handleChange} onKeyDown={(e) => {
-                                    if (e.key === "-") {
+                                <input type="number" className={`form-control fs-cus-1 ${filtersError.MinCapacity.e ? "is-invalid" : ""}`}  placeholder="Minimum Capacity" id="MinCapacity" name='MinCapacity' min={0} value={filters.MinCapacity} onChange={handleChange} onKeyDown={(e) => {
+                                    if (e.key === "-" || e.key === ".") {
                                         // prevent user type negative value
                                         e.preventDefault();
                                     }
                                 }} />
                                 <span className="ms-1 me-1 align-bottom">-</span>
                                 {/* max */}
-                                <input type="number" className={`form-control fs-cus-1 ${"is-valid" ? filtersError.MaxCapacity.e : ""}`} placeholder="Maximum Capacity" id="MaxCapacity" name='MaxCapacity' min={0} value={filters.MaxCapacity} onChange={handleChange} onKeyDown={(e) => {
-                                    if (e.key === "-") {
+                                <input type="number" className={`form-control fs-cus-1 ${filtersError.MaxCapacity.e ? "is-invalid"  : ""}`} placeholder="Maximum Capacity" id="MaxCapacity" name='MaxCapacity' min={0} value={filters.MaxCapacity} onChange={handleChange} onKeyDown={(e) => {
+                                    if (e.key === "-" || e.key === ".") {
                                         // prevent user type negative value
                                         e.preventDefault();
                                     }

@@ -16,11 +16,16 @@ export function Header({who}) {
                 <li class="nav-item">
                     <a className={`nav-link ${who === headerChoice.home ? active : ""}`} href={staticRoutes.home}>{headerChoice.home}</a>
                 </li>
+                <li class="nav-item">
+                    <a className={`nav-link ${who === headerChoice.objectDetection ? active : ""}`} href={staticRoutes.objectDetection}>{headerChoice.objectDetection}</a>
+                </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Bus Schedule Management</a>
                     <div class="dropdown-menu bg-header">
                         <a className={`dropdown-item nav-link ${who === headerChoice.bus ? active : ""}`} href={staticRoutes.bus}>{headerChoice.bus}</a>
                         <a className={`dropdown-item nav-link ${who === headerChoice.route ? active : ""}`} href={staticRoutes.route}>{headerChoice.route}</a>
+                        <a className={`dropdown-item nav-link ${who === headerChoice.busStation ? active : ""}`} href={staticRoutes.busStation}>{headerChoice.busStation}</a>
+                        <a className={`dropdown-item nav-link ${who === headerChoice.assignment ? active : ""}`} href={staticRoutes.assignment}>{headerChoice.assignment}</a>
                     </div>
                 </li>
                 </ul>
@@ -35,5 +40,8 @@ export const headerChoice = {
     bus : "Bus",
     station : "Station",
     route : "Route",
+    busStation : "Bus Station",
+    assignment : "Bus Assignment",
+    objectDetection : "Object Detection"
 }
 

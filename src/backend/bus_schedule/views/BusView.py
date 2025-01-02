@@ -4,7 +4,6 @@ from rest_framework import status
 from ..models import Bus
 from ..serializer import BusSerializer
 from backend.utils import message
-from bson import ObjectId
 
 # no need id to create 
 class BusListView(APIView) : 
@@ -107,10 +106,7 @@ class BusListView(APIView) :
             return Response({"error" : message.DATABASE_CONNECTION_ERROR}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class BusDetailView(APIView) :
-
     def get(self, request, id) : 
-        print("Get By ID Archieve")
-
         try :
             if id : 
                 # have data
@@ -260,8 +256,6 @@ class BusUtility(APIView) :
             result = [carplate for carplate in result]
             # put into serilizer pass to frontend 
             serializer = BusSerializer(result, many=True)
-
-            print(serializer.data)
             
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ConnectionError as e: 

@@ -15,7 +15,7 @@ export function BusForm({isCreate, carplate = null, form, formErrors, handleSubm
 
     return (
         <div className='d-flex justify-content-center align-items-center fs-cus-1'>
-            <form className='w-50 bg-light p-5 rounded-3 shadow-lg' onSubmit={handleSubmit}>
+            <form className='w-50 bg-light p-5 rounded-3 shadow-lg'>
                 <button type="button" class="btn p-0 mb-3 link-primary link-offset-2 link-opacity-50-hover" onClick={handleBack}>
                     <i class="bi bi-arrow-left-square-fill"></i> &nbsp; Back
                 </button>
@@ -41,7 +41,7 @@ export function BusForm({isCreate, carplate = null, form, formErrors, handleSubm
                 <div>
                     <label className="form-label ms-1" for="inputValid">Capacity :</label>
                     <input type="number" className={`form-control fs-cus-1 ${formErrors.Capacity ? "is-invalid" : ""}`}  placeholder="Eg, 10" id="Capacity" name='Capacity' min={0} value={form.Capacity} onChange={handleChange} onKeyDown={(e) => {
-                        if (e.key === "-") {
+                        if (e.key === "-" || e.key === ".") {
                             // prevent user type negative value
                             e.preventDefault();
                         }
@@ -59,12 +59,14 @@ export function BusForm({isCreate, carplate = null, form, formErrors, handleSubm
                     <div className='w-100 text-end mt-4'>
                         <CreateBtn 
                             isDisabled={isDisabled}
+                            handleSubmit={handleSubmit}
                         />
                     </div>
                 ) : (
                     <div className='w-100 text-end mt-4'>
                         <UpdateBtn 
                             isDisabled={forceDisaled ? true : isDisabled ? true : false}
+                            handleSubmit={handleSubmit}
                         />
                         &nbsp;&nbsp;&nbsp;
                         <DeleteBtn 
@@ -73,7 +75,6 @@ export function BusForm({isCreate, carplate = null, form, formErrors, handleSubm
                         />
                     </div>
                 )}
-                
             </form>
         </div>
     )

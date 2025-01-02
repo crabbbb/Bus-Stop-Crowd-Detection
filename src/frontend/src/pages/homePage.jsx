@@ -2,7 +2,6 @@ import React from "react";
 import { RedirectBtn } from "../components/shared/redirectBtn";
 import { staticRoutes } from "../routes/routes";
 import { Header, headerChoice } from "../components/shared/header";
-import DatabaseUpdateStream from '../websocket/test';
 
 export function HomePage() {
     return (
@@ -15,7 +14,7 @@ export function HomePage() {
                     <h1 className="text-center">Welcome USER! &#128512;</h1>
                     <div className="d-flex justify-content-center align-items-center h-75">
                         <RedirectBtn
-                            redirectTo={staticRoutes.bus}
+                            redirectTo={staticRoutes.objectDetection}
                             btnContent="OBJECT DETECTION"
                             btnClass="btn btn-secondary m-4 w-50 h-75 cus-font"
                         />
@@ -27,7 +26,6 @@ export function HomePage() {
                     </div>
                 </div>
             </div>
-            <DatabaseUpdateStream />
         </div>
     )
 }

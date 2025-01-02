@@ -17,3 +17,4 @@ class CheckDBConnectionMiddleware:
 
         # Proceed with the normal response if the database connection is healthy
         return self.get_response(request)
+

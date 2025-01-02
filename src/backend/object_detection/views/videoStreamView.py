@@ -11,12 +11,14 @@ from enum import Enum
 from ..serializer import serializeBusCentroid
 from supervision import Position
 from queue import Queue
+from datetime import datetime
+from .getNextBus import getNextBus
 
 # VIDEO_PATH = r"C:/Users/LENOVO/OneDrive/Documents/GitHub/Bus-Stop-Crowd-Detection/data/raw/videos/cctv/LeaveNGoInBus1.mp4"
 VIDEO_PATH = r"C:/Users/LENOVO/OneDrive/Documents/GitHub/Bus-Stop-Crowd-Detection/data/raw/videos/cctv/D.mp4"
 MODEL_PATH = r"object_detection/model/yolov8l.pt"
-# LEG_DETECTOR_PATH = r"object_detection/model/legDetector.pt"
-LEG_DETECTOR_PATH = r"C:/Users/LENOVO/OneDrive/Documents/GitHub/Bus-Stop-Crowd-Detection/src/backend/object_detection/model/legDetector.pt"
+LEG_DETECTOR_PATH = r"object_detection/model/legDetector.pt"
+# LEG_DETECTOR_PATH = r"C:/Users/LENOVO/OneDrive/Documents/GitHub/Bus-Stop-Crowd-Detection/src/backend/object_detection/model/legDetector.pt"
 
 REGION = {
     "5": 671,
@@ -59,12 +61,15 @@ avgLeg = []
 inQueue = Queue(maxsize=10)
 numberOfPpl = 0
 currentFrameIndex = 0
+busStationTime = {
+    "Station 4" : {},
+    "Station 5" : {}
+}
 
 class BusStatus(Enum):
     NO_DETECT = "No bus detected" # wont be used, if dont have bus then centroid will be empty 
     LEAVE_BUS = "Passengers on the bus are getting off"
     WAITING = "Wait for passengers to board" # wait when have ppl up / after ppl down / after resting 
-    RESTING = "The bus driver is taking a break"
     DETECTING = "Detecting"
     LEAVING = "The bus is leaving for the next stop"
     
@@ -164,6 +169,7 @@ def videoProcess(request):
 
     def generate():
         global currentFrameIndex
+        global busStationTime
         
         cap = cv2.VideoCapture(VIDEO_PATH)
         # simple safety check in case the video fails to open
@@ -218,6 +224,7 @@ def videoProcess(request):
                     if not isBusCentroidExist(busId) : 
                         # busid doesnot exist in the dictionary - create one 
                         # init 
+                        now = datetime.now()
                         busCentroid[busId] = {}
                         busCentroid[busId]["centroid"] = currentLocation
                         busCentroid[busId]["xyxy"] = bbox
@@ -226,6 +233,7 @@ def videoProcess(request):
                         busCentroid[busId]["passengerInBus"] = 0
                         busCentroid[busId]["passengerLeaveBus"] = 0
                         busCentroid[busId]["busNoExist"] = 0 # how many frame doesnot exist ( over 5 remove it )
+                        busCentroid[busId]["busArrivalTime"] = now.strftime("%H:%M:%S")
                         updateBusStatus(busId, BusStatus.DETECTING)
                     else :  
                         
@@ -376,6 +384,40 @@ def videoProcess(request):
                     # remove 1 value  
                     inQueue.get()
                 inQueue.put(numberOfPpl)
+            
+            # get the bus schedule data 
+            if currentFrameIndex % 10 == 0 :
+                res = getNextBus("Station 4")
+                if res is not None:
+                    assignmentFour, busFour = res
+                    busStationTime["Station 4"] = {}
+                    busStationTime["Station 4"]["nextBusTime"] = assignmentFour["Time"]
+                    busStationTime["Station 4"]["busCarPlateNo"] = busFour["CarPlateNo"]
+                    busStationTime["Station 4"]["busCapacity"] = busFour["Capacity"]
+                else:
+                    # Handle the scenario gracefully when there's no next bus
+                    assignmentFour, busFour = None, None
+                    print("No next bus found for Station 4")
+                    busStationTime["Station 4"] = {}
+                    busStationTime["Station 4"]["nextBusTime"] = None
+                    busStationTime["Station 4"]["busCarPlateNo"] = None
+                    busStationTime["Station 4"]["busCapacity"] = None
+
+                res = getNextBus("Station 5")
+                if res is not None:
+                    assignmentFour, busFour = res
+                    busStationTime["Station 5"] = {}
+                    busStationTime["Station 5"]["nextBusTime"] = str(assignmentFour["Time"])
+                    busStationTime["Station 5"]["busCarPlateNo"] = busFour["CarPlateNo"]
+                    busStationTime["Station 5"]["busCapacity"] = str(busFour["Capacity"])
+                else:
+                    # Handle the scenario gracefully when there's no next bus
+                    assignmentFour, busFour = None, None
+                    print("No next bus found for Station 5")
+                    busStationTime["Station 5"] = {}
+                    busStationTime["Station 5"]["nextBusTime"] = None
+                    busStationTime["Station 5"]["busCarPlateNo"] = None
+                    busStationTime["Station 5"]["busCapacity"] = None
             # ----------------------------------- start sending data to frontend ------------------------------------- #
             # encode frame to JPEG
             _, jpeg_frame = cv2.imencode('.jpg', annotatedFrame)
@@ -389,7 +431,8 @@ def videoProcess(request):
             data = {
                 "frame": b64_frame,
                 "num_people": numberOfPpl,
-                "busCentroid": sBusCentroid
+                "busCentroid": sBusCentroid,
+                "busStationTime": busStationTime
             }
 
             currentFrameIndex = cap.get(cv2.CAP_PROP_POS_FRAMES)

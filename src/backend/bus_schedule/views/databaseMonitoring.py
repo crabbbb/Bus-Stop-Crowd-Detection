@@ -42,3 +42,4 @@ def BusMonitor(request) :
         return JsonResponse({"error": f"{message.DATABASE_CONNECTION_ERROR}, {e}"}, status=500)
     except Exception as e : 
         return JsonResponse({"error": f"Unexpected error occurs, {e}"}, status=500)
+

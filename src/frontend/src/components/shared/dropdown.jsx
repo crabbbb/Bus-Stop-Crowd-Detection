@@ -4,9 +4,6 @@ import BusStation from "../../routes/api/rootes/stationRootes";
 import RouteStation from "../../routes/api/rootes/routeStationRootes";
 
 export function DropdownWithInput({setOptions, options, stations, setStations}) {
-    // const [options, setOptions] = useState([]);   
-    // const [stations, setStations] = useState([]); 
-
     useEffect(() => {
         BusStation
         .getStations()
@@ -97,7 +94,7 @@ export function DropdownWithInputValueReady({ routeId, setOptions, options, stat
             // Convert them into our local station structure
             // e.g. { id: 'MRT', stationName: 'MRT', order: 1 }
             const mappedStations = sortedData.map((item) => ({
-                id: item.StationName,           // or you could store item._id if that’s your actual ID
+                id: item.StationName,           
                 stationName: item.StationName,
                 order: item.RouteOrder,
             }));

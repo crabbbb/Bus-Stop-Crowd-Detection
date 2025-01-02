@@ -6,6 +6,7 @@ export function VideoStream() {
     const [imageSrc, setImageSrc] = useState(null);
     const [numPeople, setNumPeople] = useState(null);
     const [busData, setBusData] = useState({});
+    const [busSchedule, setBusSchedule] = useState({});
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -22,6 +23,7 @@ export function VideoStream() {
                     setImageSrc(`data:image/jpeg;base64,${parsedData.frame}`);
                     setNumPeople(parsedData.num_people);
                     setBusData(parsedData.busCentroid);
+                    setBusSchedule(parsedData.busStationTime)
                     setIsLoading(false);
 
                     
@@ -75,18 +77,45 @@ export function VideoStream() {
                                 <div>
                                     {/* for bus stop 4 */}
                                     <h5>Station 4</h5>
-                                    <ul>
-                                        <li></li>
+                                    <ul className='fs-cus-1'>
+                                        <li>Next Bus Arrival Time : {busSchedule["Station 4"].nextBusTime ?? 'No Next Bus ( Station End )'}</li>
+                                        { busSchedule["Station 4"].nextBusTime ? (
+                                            <ul>
+                                                <li>Bus Car Plate No : {busSchedule["Station 4"].busCarPlateNo ?? 'No Next Bus ( Station End )'}</li>
+                                                <li>Bus Capacity : {busSchedule["Station 4"].busCapacity ?? 'No Next Bus ( Station End )'}</li>
+                                            </ul>
+                                        ):null}
                                     </ul>
                                 </div>
                                 <hr/>
                                 <div>
                                     {/* for bus stop 5 */}
                                     <h5>Station 5</h5>
+                                    <ul className='fs-cus-1'>
+                                        <li>Next Bus Arrival Time : {busSchedule["Station 5"].nextBusTime ?? 'No Next Bus ( Station End )'}</li>
+                                        {busSchedule["Station 5"].nextBusTime ? (
+                                            <ul>
+                                                <li>Bus Car Plate No : {busSchedule["Station 5"].busCarPlateNo ?? 'No Next Bus ( Station End )'}</li>
+                                                <li>Bus Capacity : {busSchedule["Station 5"].busCapacity ?? 'No Next Bus ( Station End )'}</li>
+                                            </ul>
+                                        ):null}
+                                    </ul>
                                 </div>
-                                <p>Number of people detected: {numPeople ?? 'N/A'}</p>
-                        
-                                <pre>{JSON.stringify(busData, null, 2)}</pre> {/* For debugging */}
+                                <hr/>
+                                <div>
+                                    {busData && Object.entries(busData).map(([busId, bus]) => (
+                                        // Provide a unique key for each mapped item
+                                        <div key={busId} className='fs-cus-1'>
+                                            <h5>Bus {busId}</h5>
+                                            <ul>
+                                                <li>Current at Bus Station : {bus.station}</li>
+                                                <li>Bus Status : {bus.status}</li>
+                                                <li>Passenger In Bus : {bus.passengerInBus}</li>
+                                                <li>Passenger Leave Bus : {bus.passengerLeaveBus}</li>
+                                            </ul>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>

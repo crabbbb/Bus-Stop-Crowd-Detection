@@ -230,15 +230,6 @@ class AssignmentDetailView(APIView) :
     
     # update 
     def put(self, request, id):
-        """
-        Update an existing Assignment with ID == id.
-        Steps:
-        1) Validate existence of the assignment.
-        2) Parse & validate incoming fields.
-        3) Check duplicates (Time, DayOfWeek, BusId, RouteId), excluding self.
-        4) Check bus-time overlap, excluding self.
-        5) Update the record if all checks pass.
-        """
         try:
             # 1) Retrieve existing assignment by ID
             assignment_model = Assignment()

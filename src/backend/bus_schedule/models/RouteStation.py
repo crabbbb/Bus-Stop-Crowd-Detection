@@ -47,7 +47,7 @@ class RouteStation(SuperModel) :
                 raise ValueError("Invalid Route Id")
             
             station = BusStation()
-            s = station.getWithID(data["StationName"])
+            s = station.getByfilter({"StationName" : data["StationName"]})
             if not s : 
                 raise ValueError("Invalid Station Name")
 

@@ -64,6 +64,11 @@ Follow these steps to set up the project:
     ```bash
     python manage.py runserver
     ```
+7. **Reset Collections**
+   - by using this command able to reset all the change make on the Database
+   ```bash
+   python manage.py resetCollections
+   ```
 
 ### Frontend (React.js)
 

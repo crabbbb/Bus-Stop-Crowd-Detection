@@ -83,7 +83,7 @@ class Database :
             collections = Database.__getPresetCollectionsName()
 
         # if collection exist will drop the collections 
-        if self.__db :
+        if self.__db is not None :
             if self.numOfCollections() > 0: 
                 # drop all collections and create again
                 self.dropAllCollections()

@@ -1,8 +1,9 @@
 [
     {
-        "AssignmentId": "A0001",
-        "ScheduleId": "S0001",
+        "Time": "22:54:00",
+        "DayOfWeek": 3,
+        "BusId": "B01",
         "RouteId": "R001",
-        "BusId": "B001"
+        "AssignmentId": "A001"
     }
 ]

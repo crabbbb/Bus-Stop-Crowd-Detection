@@ -3,4 +3,4 @@ database:
   host: cluster0.0htcf.mongodb.net
   databaseName: Bus-Scene-Detection-DB
   options: "?retryWrites=true&w=majority&appName=Cluster0"
-collections: ["Bus", "Schedule", "BusStation", "Route", "RouteStation", "Assignment", "BusTrackingLog", "ScheduleAssignment"]
+collections: ["Bus", "Assignment", "BusStation", "Route", "RouteStation"]

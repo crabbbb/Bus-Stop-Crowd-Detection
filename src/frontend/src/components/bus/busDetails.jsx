@@ -86,7 +86,7 @@ export function BusDetail() {
 
             // if dont have data will reach 404 
             // data insert to 
-            if(response.data._id) {
+            if("_id" in response.data) {
                 setObjId(response.data._id);
             }
 
@@ -207,7 +207,10 @@ export function BusDetail() {
             if (operationType === "delete") {
                 fullDocument = data.documentKey;
             }
-
+            
+            if (!fullDocument || !fullDocument._id) {
+                return;
+            }
             // compare the id pass in and the current id 
             if (objIdRef.current === fullDocument._id) {    
                 // is same, do some action 

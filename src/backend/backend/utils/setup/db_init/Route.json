@@ -1,7 +1,7 @@
 [
     {
         "RouteId": "R001",
-        "RouteDescription": "Here is some description",
+        "RouteDuration": 30,
         "IsActive": 0,
         "FromCampus": 0
     }
